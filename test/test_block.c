@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/12 14:55:27 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/12 14:58:34 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 
 #include "block.h"
 #include "unity.h"
+
+static t_byte fake_heap[4096] = {0};
 
 void
 setUp() {}
@@ -60,7 +62,6 @@ test_GET_WORD() {
 
 void
 test_NEXT_PREV_BLOCK_PTR() {
-    t_byte  fake_heap[4096]  = {0};
     t_byte *ptr_fake_heap    = fake_heap;
     void   *first_block_ptr  = NULL;
     void   *second_block_ptr = NULL;
