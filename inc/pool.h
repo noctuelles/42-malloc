@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   malloc.h                                           :+:      :+:    :+:   */
+/*   pool.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/10 15:11:36 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/12 22:17:29 by plouvel          ###   ########.fr       */
+/*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
+/*   Updated: 2024/05/12 22:10:41 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MALLOC_H
-#define MALLOC_H
+#ifndef POOL_H
+#define POOL_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "pool.h"
+#include "malloc.h"
 
-#define POOL_NBR 2
+#define ALLOC_PER_POOL 100
 
-typedef uint8_t  t_byte;
-typedef uint32_t t_word;
-typedef uint64_t t_dword;
+typedef struct s_pool {
+    size_t  min_alloc_size;
+    size_t  max_alloc_size;
+    t_byte *ptr;
+    size_t  size;
+} t_pool;
 
 #endif

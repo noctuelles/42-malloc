@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/12 14:31:27 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/12 22:34:40 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,11 @@ Structure of the implicit free list :
     N.B: (Padding) means it is optionnal.
 */
 
-typedef uint8_t  t_byte;
-typedef uint32_t t_word;
-typedef uint64_t t_dword;
-
 #define WORD_SIZE sizeof(t_word)
 #define DWORD_SIZE sizeof(t_dword)
+
+#define ALLOCATED 0x1
+#define FREE 0x0
 
 #define GET_WORD(ptr) (*(t_word *)(ptr))
 #define PUT_WORD(ptr, val) (*(t_word *)(ptr) = (val))
@@ -66,7 +65,7 @@ typedef uint64_t t_dword;
    (for aligment). The size is thus encoded in the remaining 29 bits.
  */
 #define GET_BLOCK_SIZE(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & ~0b111)
-#define IS_ALLOCATED_BLOCK(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & 0x1)
+#define IS_ALLOCATED_BLOCK(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & ALLOCATED)
 
 #define PACK_HEADER_FOOTER(size, is_allocated) ((size) | (is_allocated))
 
