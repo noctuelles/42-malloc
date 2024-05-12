@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/10 15:20:22 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/11 16:58:07 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ CFLAGS=-Wall -Werror -Wextra
 
 PROJECT_INC=-I$(INC_PATH)
 UNITY_INC=-I$(UNITY_PATH)
-INCS=$(PROJEC_INC)$(UNITY_INC)
+INCS=$(PROJECT_INC) $(UNITY_INC)
 
 # Misc
 
@@ -61,6 +61,8 @@ TARGET_EXTENSION=out
 NAME=libft_malloc_$(HOSTTYPE).so
 
 # Rules
+
+$(info $(INCS))
 
 all: $(NAME)
 
