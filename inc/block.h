@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/13 12:07:12 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/13 14:12:27 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,5 +88,7 @@ Structure of the implicit free list :
  * @note To get to he previous block pointer, we have to read the previous block size footer, and decrement accordingly.
  */
 #define PREV_BLOCK_PTR(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
+
+void *block_coalesce(void *block_ptr);
 
 #endif

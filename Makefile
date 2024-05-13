@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/11 16:58:07 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/13 14:19:27 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,7 @@ CC=gcc
 LINK=gcc
 
 CFLAGS=-Wall -Werror -Wextra
+DEBUG=-g3
 
 PROJECT_INC=-I$(INC_PATH)
 UNITY_INC=-I$(UNITY_PATH)
@@ -86,7 +87,7 @@ $(BUILD_PATH)/test_%.$(TARGET_EXTENSION): $(OBJS_PATH)/test_%.o $(OBJS_PATH)/uni
 
 # Rule to compile the files of the project
 $(OBJS_PATH)/%.o:: $(SRC_PATH)/%.c | $(OBJS_PATH)
-	$(CC) $(CFLAGS) $(PROJECT_INC) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEBUG) $(PROJECT_INC) -c $< -o $@
 
 # Rule to compile the Unity Framework
 $(OBJS_PATH)/%.o:: $(UNITY_PATH)/%.c $(UNITY_PATH)/%.h | $(OBJS_PATH)
@@ -94,7 +95,7 @@ $(OBJS_PATH)/%.o:: $(UNITY_PATH)/%.c $(UNITY_PATH)/%.h | $(OBJS_PATH)
 
 # Rule to compile the tests of the project
 $(OBJS_PATH)/%.o:: $(TEST_PATH)/%.c | $(OBJS_PATH)
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEBUG) $(INCS) -c $< -o $@
 
 $(OBJS_PATH):
 	$(MKDIR) $@
