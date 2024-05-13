@@ -6,13 +6,14 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/12 22:34:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/13 12:07:12 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include "malloc.h"
 #include "stdint.h"
 
 /*
@@ -64,8 +65,8 @@ Structure of the implicit free list :
 /* The first 3 LSB are unused : the block size must be a multiple of 8 bytes
    (for aligment). The size is thus encoded in the remaining 29 bits.
  */
-#define GET_BLOCK_SIZE(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & ~0b111)
-#define IS_ALLOCATED_BLOCK(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & ALLOCATED)
+#define GET_SIZE(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & ~0b111)
+#define IS_ALLOCATED(hdr_or_foot_ptr) (GET_WORD(hdr_or_foot_ptr) & ALLOCATED)
 
 #define PACK_HEADER_FOOTER(size, is_allocated) ((size) | (is_allocated))
 
@@ -75,17 +76,17 @@ Structure of the implicit free list :
  * @note Minus DWORD_SIZE : the footer and header are included in the block
  * size, thus, we've to substract a DWORD.
  */
-#define GET_FOOTER(payload_ptr) ((t_byte *)(payload_ptr) + GET_BLOCK_SIZE(GET_HEADER(payload_ptr)) - DWORD_SIZE)
+#define GET_FOOTER(payload_ptr) ((t_byte *)(payload_ptr) + GET_SIZE(GET_HEADER(payload_ptr)) - DWORD_SIZE)
 
 /**
  * @brief Compute the block pointer of the next block.
  * @note To get to he next block pointer, we have to read the block size from the header, and increment accordingly.
  */
-#define NEXT_BLOCK_PTR(payload_ptr) ((t_byte *)(payload_ptr) + GET_BLOCK_SIZE(((t_byte *)(payload_ptr) - WORD_SIZE)))
+#define NEXT_BLOCK_PTR(payload_ptr) ((t_byte *)(payload_ptr) + GET_SIZE(((t_byte *)(payload_ptr) - WORD_SIZE)))
 /**
  * @brief Compute the block pointer of the previous block.
  * @note To get to he previous block pointer, we have to read the previous block size footer, and decrement accordingly.
  */
-#define PREV_BLOCK_PTR(payload_ptr) ((t_byte *)(payload_ptr) - GET_BLOCK_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
+#define PREV_BLOCK_PTR(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
 
 #endif

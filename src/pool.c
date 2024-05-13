@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/12 22:40:15 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/13 11:15:01 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ compute_pool_size(t_pool *pool) {
 
     pool->size = size + (page_size - size % page_size);
 }
+
+int
+find_fit(const t_pool *pool) {}
 
 int
 init_pool(t_pool *pool) {
