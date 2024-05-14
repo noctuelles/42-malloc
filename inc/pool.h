@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 15:38:02 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 16:38:10 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,12 @@
  * According to the subject, a pool must contains at least ALLOC_PER_POOL allocations. Given a pool size class of [n,
  * m], i choosed to allocate a pool of m * ALLOC_PER_POOL.
  */
-#define POOL_SIZE(max_alloc_size) ((max_alloc_size) * ALLOC_PER_POOL + (4 * WORD_SIZE))
+#define POOL_SIZE(max_alloc_size) (((max_alloc_size) + (2 * WORD_SIZE)) * ALLOC_PER_POOL + (4 * WORD_SIZE))
 /**
  * @note Adjusted size so the size if a multiple of the system page size.
  */
 #define POOL_ADJUSTED_SIZE(max_alloc_size) \
     (POOL_SIZE(max_alloc_size) + ((size_t)getpagesize() - POOL_SIZE(max_alloc_size) % (size_t)getpagesize()))
-
-#define NSIZE(array) (sizeof(array) / sizeof(array[0]))
 
 typedef uint8_t  t_byte;
 typedef uint32_t t_word;

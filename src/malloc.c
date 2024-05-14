@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 15:45:18 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 15:47:44 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,11 @@ init_malloc() {
  * @return void* the free block or NULL.
  */
 void *
-find_appropriate_free_block(size_t size) {}
+find_appropriate_free_block(size_t size) {
+    // TODO
+    (void)size;
+    return (NULL);
+}
 
 void *
 malloc(size_t size) {

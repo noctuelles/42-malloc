@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 15:38:02 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 17:49:06 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,27 +19,25 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-size_t
-compute_pool_size(t_pool *pool) {
-    const size_t page_size = (size_t)getpagesize();
-    const size_t size      = pool->max_alloc_size * ALLOC_PER_POOL + (WORD_SIZE * 4);
-
-    pool->size = size + (page_size - size % page_size);
-}
-
 void
 release_pool(t_pool *pool) {
-    (void)munmap(pool->base_ptr, pool->size);
-    pool->beginning_ptr = NULL;
-    pool->size          = 0;
+    if (pool->base_ptr) {
+        (void)munmap(pool->base_ptr, pool->size);
+        pool->beginning_ptr = NULL;
+        pool->base_ptr      = NULL;
+        pool->size          = 0;
+    }
 }
 
 int
 init_pool(t_pool *pool) {
+    size_t free_blk_size = 0;
+
     pool->size     = POOL_ADJUSTED_SIZE(pool->max_alloc_size);
+    free_blk_size  = pool->size - (4 * WORD_SIZE);
     pool->base_ptr = mmap(NULL, pool->size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
-    if (pool->beginning_ptr == MAP_FAILED) {
+    if (pool->base_ptr == MAP_FAILED) {
         return (-1);
     }
 
@@ -52,9 +50,14 @@ init_pool(t_pool *pool) {
     PUT_WORD(pool->base_ptr + WORD_SIZE, PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
     PUT_WORD(pool->base_ptr + (2 * WORD_SIZE), PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
 
+    /* Initial free block */
+
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE), PACK_HEADER_FOOTER(free_blk_size, FREE));
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE) + free_blk_size - WORD_SIZE, PACK_HEADER_FOOTER(free_blk_size, FREE));
+
     /* Epilogue block */
 
-    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE), PACK_HEADER_FOOTER(0, ALLOCATED));
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE) + free_blk_size, PACK_HEADER_FOOTER(0, ALLOCATED));
 
     pool->beginning_ptr = pool->base_ptr + (2 * WORD_SIZE);
 
