@@ -6,12 +6,13 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 15:47:44 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 20:44:56 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/mman.h>
 
 #include "block.h"
@@ -58,19 +59,6 @@ init_malloc() {
     return (0);
 }
 
-/**
- * @brief find an appropriate free block for the requested size. If no free block is available, it returns NULL.
- *
- * @param size allocation size.
- * @return void* the free block or NULL.
- */
-void *
-find_appropriate_free_block(size_t size) {
-    // TODO
-    (void)size;
-    return (NULL);
-}
-
 void *
 malloc(size_t size) {
     t_pool *targeted_pool = NULL;
@@ -85,3 +73,6 @@ realloc(void *ptr, size_t size) {}
 
 void
 free(void *) {}
+
+void
+show_alloc_mem() {}

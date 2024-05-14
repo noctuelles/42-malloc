@@ -6,12 +6,13 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 17:49:06 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 21:04:12 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pool.h"
 
+#include <assert.h>
 #include <block.h>
 #include <errno.h>
 #include <error.h>
@@ -26,6 +27,70 @@ release_pool(t_pool *pool) {
         pool->beginning_ptr = NULL;
         pool->base_ptr      = NULL;
         pool->size          = 0;
+    }
+}
+
+/**
+ * @brief find an appropriate free block for the requested size. If no free block is available, it returns NULL.
+ *
+ * @param size allocation size.
+ * @return void* the free block or NULL.
+ */
+void *
+find_pool_free_block(t_pool *pool, size_t size) {
+    void  *blk        = pool->beginning_ptr;
+    t_word block_size = 0;
+
+    while ((block_size = GET_SIZE(GET_HEADER(blk))) != 0) {
+        if (block_size >= size) {
+            return (blk);
+        }
+        blk = NEXT_BLOCK_PTR(blk);
+    }
+    return (NULL);
+}
+
+// void
+// place_pool_block(const t_pool *pool, void *blk, size_t alloc_size) {
+//     uint32_t blk_size = GET_SIZE(GET_HEADER(blk));
+
+//     assert(IS_ALLOCATED(GET_HEADER(blk)) == FREE);
+//     assert(blk_size >= (uint32_t)alloc_size);
+
+//     if (blk_size - DWORD_SIZE > alloc_size) {
+//         PUT_WORD(GET_HEADER(blk), PACK_HEADER_FOOTER(blk_size - alloc_size, ALLOCATED));
+//         PUT_WORD(GET_FOOTER(blk), PACK_HEADER_FOOTER(blk_size - alloc_size, ALLOCATED));
+
+//         PUT_WORD(GET_HEADER(NEXT_BLOCK_PTR(blk)), PACK_HEADER_FOOTER(blk_size - alloc_size, FREE));
+
+//     } else {
+//         PUT_WORD(GET_HEADER(blk), PACK_HEADER_FOOTER(blk_size, ALLOCATED));
+//         PUT_WORD(GET_FOOTER(blk), PACK_HEADER_FOOTER(blk_size, ALLOCATED));
+//     }
+// }
+
+void
+show_pool(const t_pool *pool) {
+    void  *blk      = NULL;
+    t_word blk_size = 0;
+
+    printf("Pool size [%lu;%lu]", pool->min_alloc_size, pool->max_alloc_size);
+    if (pool->base_ptr == NULL) {
+        printf(" - not yet initialized.\n");
+        return;
+    }
+    printf(" - Starting at address %p.\n", pool->base_ptr);
+
+    blk = pool->beginning_ptr;
+    while ((blk_size = GET_SIZE(GET_HEADER(blk))) != 0) {
+        printf("%p - %p : %lu", blk, GET_FOOTER(blk), blk_size - DWORD_SIZE);
+
+        if (IS_ALLOCATED(GET_HEADER(blk))) {
+            printf(" allocated byte(s).\n");
+        } else {
+            printf(" free byte(s).\n");
+        }
+        blk = NEXT_BLOCK_PTR(blk);
     }
 }
 

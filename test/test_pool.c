@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:38:30 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 17:49:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 20:59:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ test_init_pool() {
     next_blk = NEXT_BLOCK_PTR(g_fake_pool.beginning_ptr);
 
     TEST_ASSERT_EQUAL(FREE, IS_ALLOCATED(GET_HEADER(next_blk)));
+    TEST_ASSERT_EQUAL(0, *(t_byte *)next_blk % DWORD_SIZE);
 
     /* Prologue Block */
 
@@ -59,6 +60,8 @@ test_init_pool() {
 
     TEST_ASSERT_EQUAL_UINT32(0, GET_SIZE(GET_HEADER(next_blk)));
     TEST_ASSERT_EQUAL(ALLOCATED, IS_ALLOCATED(GET_HEADER(next_blk)));
+
+    show_pool(&g_fake_pool);
 }
 
 void

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 16:38:10 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 20:56:35 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,11 @@ typedef struct s_pool {
     size_t  size;
 } t_pool;
 
-int  init_pool(t_pool *pool);
-void release_pool(t_pool *pool);
+int   init_pool(t_pool *pool);
+void  release_pool(t_pool *pool);
+void *find_pool_free_block(t_pool *pool, size_t size);
+// void  place_pool_block(t_pool *pool, void *blk);
+
+void show_pool(const t_pool *pool);
 
 #endif
