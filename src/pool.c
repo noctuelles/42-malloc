@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/13 11:15:01 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/14 15:38:02 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,32 +27,36 @@ compute_pool_size(t_pool *pool) {
     pool->size = size + (page_size - size % page_size);
 }
 
-int
-find_fit(const t_pool *pool) {}
+void
+release_pool(t_pool *pool) {
+    (void)munmap(pool->base_ptr, pool->size);
+    pool->beginning_ptr = NULL;
+    pool->size          = 0;
+}
 
 int
 init_pool(t_pool *pool) {
-    pool->size = compute_pool_size(&pool);
-    pool->ptr  = mmap(NULL, pool->size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (pool->ptr) {
-        error(0, errno, "cannot allocate heap size");
+    pool->size     = POOL_ADJUSTED_SIZE(pool->max_alloc_size);
+    pool->base_ptr = mmap(NULL, pool->size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+    if (pool->beginning_ptr == MAP_FAILED) {
         return (-1);
     }
 
-    /* Alignement */
+    /* Alignement padding */
 
-    PUT_WORD(pool->ptr, 0);
+    PUT_WORD(pool->base_ptr, 0x00000000U);
 
     /* Prologue block */
 
-    PUT_WORD(pool->ptr + WORD_SIZE, PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
-    PUT_WORD(pool->ptr + (2 * WORD_SIZE), PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
+    PUT_WORD(pool->base_ptr + WORD_SIZE, PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
+    PUT_WORD(pool->base_ptr + (2 * WORD_SIZE), PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
 
     /* Epilogue block */
 
-    PUT_WORD(pool->ptr + (3 * WORD_SIZE), PACK_HEADER_FOOTER(0, ALLOCATED));
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE), PACK_HEADER_FOOTER(0, ALLOCATED));
 
-    pool->ptr += (2 * WORD_SIZE);
+    pool->beginning_ptr = pool->base_ptr + (2 * WORD_SIZE);
 
     return (0);
 }
