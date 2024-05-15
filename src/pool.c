@@ -6,12 +6,13 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 12:47:49 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 13:47:08 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pool.h"
 
+#include <assert.h>
 #include <block.h>
 #include <errno.h>
 #include <error.h>

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 12:49:31 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 14:09:25 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ High addr   +--------------+
 #define GET_SIZE(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ~0b111)
 #define GET_ALLOC(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ALLOCATED)
 #define GET_ANONYMOUS(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ANONYMOUS)
+#define GET_PAYLOAD_SIZE(hdr_or_ftr) (GET_SIZE(hdr_or_ftr) - (2 * WORD_SIZE))
 
 #define PACK(size, is_allocated) ((size) | (is_allocated))
 
@@ -111,6 +112,7 @@ High addr   +--------------+
  */
 #define PREV_BLK(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
 
-void *block_coalesce(void *block_ptr);
+void *coalesce_block(void *block_ptr);
+void  place_block(void *blk, const size_t adj_size);
 
 #endif

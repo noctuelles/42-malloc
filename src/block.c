@@ -6,12 +6,13 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 12:31:49 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 14:50:09 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "block.h"
 
+#include <assert.h>
 #include <stddef.h>
 
 /**
@@ -21,7 +22,7 @@
  * @return void*
  */
 void *
-block_coalesce(void *block_ptr) {
+coalesce_block(void *block_ptr) {
     void *next_block_ptr = NEXT_BLK(block_ptr);
     void *prev_block_ptr = PREV_BLK(block_ptr);
 
@@ -57,4 +58,26 @@ block_coalesce(void *block_ptr) {
     }
 
     return (block_ptr);
+}
+
+void
+place_block(void *blk, const size_t adj_size) {
+    size_t blk_size = GET_SIZE(GET_HDR(blk));
+
+    assert(blk_size >= adj_size);
+    assert(GET_ALLOC(GET_HDR(blk)) == FREE);
+
+    if ((blk_size - adj_size) > (2 * DWORD_SIZE)) {
+        PUT_WORD(GET_HDR(blk), PACK(adj_size, ALLOCATED));
+        PUT_WORD(GET_FTR(blk), PACK(adj_size, ALLOCATED));
+
+        blk = NEXT_BLK(blk);
+
+        PUT_WORD(GET_HDR(blk), PACK(blk_size - adj_size, FREE));
+        PUT_WORD(GET_FTR(blk), PACK(blk_size - adj_size, FREE));
+
+    } else {
+        PUT_WORD(GET_HDR(blk), PACK(adj_size, ALLOCATED));
+        PUT_WORD(GET_FTR(blk), PACK(adj_size, ALLOCATED));
+    }
 }

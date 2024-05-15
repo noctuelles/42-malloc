@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:38:30 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 17:49:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 12:28:18 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,21 +44,21 @@ test_init_pool() {
 
     /* Epilogue Block */
 
-    TEST_ASSERT_EQUAL_UINT32(DWORD_SIZE, GET_SIZE(GET_HEADER(g_fake_pool.beginning_ptr)));
-    TEST_ASSERT_EQUAL(ALLOCATED, IS_ALLOCATED(GET_HEADER(g_fake_pool.beginning_ptr)));
+    TEST_ASSERT_EQUAL_UINT32(DWORD_SIZE, GET_SIZE(GET_HDR(g_fake_pool.beginning_ptr)));
+    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(g_fake_pool.beginning_ptr)));
 
     /* Initial Free Block */
 
-    next_blk = NEXT_BLOCK_PTR(g_fake_pool.beginning_ptr);
+    next_blk = NEXT_BLK(g_fake_pool.beginning_ptr);
 
-    TEST_ASSERT_EQUAL(FREE, IS_ALLOCATED(GET_HEADER(next_blk)));
+    TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(next_blk)));
 
     /* Prologue Block */
 
-    next_blk = NEXT_BLOCK_PTR(next_blk);
+    next_blk = NEXT_BLK(next_blk);
 
-    TEST_ASSERT_EQUAL_UINT32(0, GET_SIZE(GET_HEADER(next_blk)));
-    TEST_ASSERT_EQUAL(ALLOCATED, IS_ALLOCATED(GET_HEADER(next_blk)));
+    TEST_ASSERT_EQUAL_UINT32(0, GET_SIZE(GET_HDR(next_blk)));
+    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(next_blk)));
 }
 
 void
