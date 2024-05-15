@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 12:45:46 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 12:49:31 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ Structure of the implicit free list :
                 - U : Unused
                 - N : Anonymous -> if the block is not part of any pool, the bit is set.
                 - A : Allocated -> if the block is allocated, the bit is set.
+
+        When an anonymous block is freed, munmap is directly called.
 
         The payload address is 8 bytes aligned. Thus, any type can start on this address.
 

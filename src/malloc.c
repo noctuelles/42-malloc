@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 15:47:44 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 12:50:39 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,4 +84,14 @@ void *
 realloc(void *ptr, size_t size) {}
 
 void
-free(void *) {}
+free(void *ptr) {
+    void *hdr_ptr = GET_HDR(ptr);
+
+    if (ptr == NULL) {
+        return;
+    }
+    if (GET_ANONYMOUS(hdr_ptr) == ANONYMOUS) {
+        (void)munmap(hdr_ptr, GET_SIZE(hdr_ptr));
+        return;
+    }
+}
