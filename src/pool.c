@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 17:49:06 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 12:26:58 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,17 +47,17 @@ init_pool(t_pool *pool) {
 
     /* Prologue block */
 
-    PUT_WORD(pool->base_ptr + WORD_SIZE, PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
-    PUT_WORD(pool->base_ptr + (2 * WORD_SIZE), PACK_HEADER_FOOTER(DWORD_SIZE, ALLOCATED));
+    PUT_WORD(pool->base_ptr + WORD_SIZE, PACK(DWORD_SIZE, ALLOCATED));
+    PUT_WORD(pool->base_ptr + (2 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
 
     /* Initial free block */
 
-    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE), PACK_HEADER_FOOTER(free_blk_size, FREE));
-    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE) + free_blk_size - WORD_SIZE, PACK_HEADER_FOOTER(free_blk_size, FREE));
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE), PACK(free_blk_size, FREE));
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE) + free_blk_size - WORD_SIZE, PACK(free_blk_size, FREE));
 
     /* Epilogue block */
 
-    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE) + free_blk_size, PACK_HEADER_FOOTER(0, ALLOCATED));
+    PUT_WORD(pool->base_ptr + (3 * WORD_SIZE) + free_blk_size, PACK(0, ALLOCATED));
 
     pool->beginning_ptr = pool->base_ptr + (2 * WORD_SIZE);
 
