@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/14 16:38:10 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/15 17:57:26 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "inc/malloc.h"
+
 #define N_POOLS 2
-#define ALLOC_PER_POOL 100
+#define MIN_ALLOC_PER_POOL 100
 
 #define POOL_ONE_MIN_ALLOC_SIZE 1
 #define POOL_ONE_MAX_ALLOC_SIZE 512
@@ -25,17 +27,8 @@
 #define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)
 #define POOL_TWO_MAX_ALLOC_SIZE 4096
 
-/**
- * @note addition of 4 words : one for padding, two for epilogue header and footer, and one for prologue header.
- * According to the subject, a pool must contains at least ALLOC_PER_POOL allocations. Given a pool size class of [n,
- * m], i choosed to allocate a pool of m * ALLOC_PER_POOL.
- */
-#define POOL_SIZE(max_alloc_size) (((max_alloc_size) + (2 * WORD_SIZE)) * ALLOC_PER_POOL + (4 * WORD_SIZE))
-/**
- * @note Adjusted size so the size if a multiple of the system page size.
- */
-#define POOL_ADJUSTED_SIZE(max_alloc_size) \
-    (POOL_SIZE(max_alloc_size) + ((size_t)getpagesize() - POOL_SIZE(max_alloc_size) % (size_t)getpagesize()))
+#define ADJ_POOL_SIZE(max_alloc_size, page_size) \
+    ((page_size) * (ADJ_ALLOC_SIZE(max_alloc_size) * MIN_ALLOC_PER_POOL + (page_size)))
 
 typedef uint8_t  t_byte;
 typedef uint32_t t_word;
@@ -50,7 +43,8 @@ typedef struct s_pool {
     size_t  size;
 } t_pool;
 
-int  init_pool(t_pool *pool);
-void release_pool(t_pool *pool);
+int   init_pool(t_pool *pool);
+void  release_pool(t_pool *pool);
+void *find_fit_pool(const t_pool *pool, const size_t size);
 
 #endif
