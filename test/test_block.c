@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 17:42:08 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 22:16:47 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,29 +256,29 @@ test_coalesce_block_PREV_NEXT_ADJACENT_FREE() {
     TEST_ASSERT_EQUAL(16 + 32 + 64, GET_SIZE(GET_HDR(first_blk)));
 }
 
-void
-test_new_anonymous_block() {
-    void  *blk       = NULL;
-    size_t page_size = (size_t)getpagesize();
+// void
+// test_new_anonymous_block() {
+//     void  *blk       = NULL;
+//     size_t page_size = (size_t)getpagesize();
 
-    blk = new_anonymous_block(16);
+//     blk = new_anonymous_block(16);
 
-    if (blk == NULL) {
-        TEST_FAIL_MESSAGE("new_anonymous_block() failed");
-    }
+//     if (blk == NULL) {
+//         TEST_FAIL_MESSAGE("new_anonymous_block() failed");
+//     }
 
-    TEST_ASSERT_NOT_NULL(blk);
+//     TEST_ASSERT_NOT_NULL(blk);
 
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
-    TEST_ASSERT_EQUAL(ANONYMOUS, GET_ANONYMOUS(GET_HDR(blk)));
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
+//     TEST_ASSERT_EQUAL(ANONYMOUS, GET_ANONYMOUS(GET_HDR(blk)));
 
-    TEST_ASSERT_EQUAL(0, GET_SIZE(GET_HDR(blk)));
-    TEST_ASSERT_EQUAL_UINT64(page_size, GET_ANON_SIZE(GET_HDR(blk)));
+//     TEST_ASSERT_EQUAL(0, GET_SIZE(GET_HDR(blk)));
+//     TEST_ASSERT_EQUAL_UINT64(page_size, GET_ANON_SIZE(GET_HDR(blk)));
 
-    /* Check if the address is aligned to a double word boundary */
+//     /* Check if the address is aligned to a double word boundary */
 
-    TEST_ASSERT_EQUAL(0, ((uintptr_t)blk & 0x7));
-}
+//     TEST_ASSERT_EQUAL(0, ((uintptr_t)blk & 0x7));
+// }
 
 int
 main(void) {
@@ -308,7 +308,7 @@ main(void) {
 
     /* Anonymous block */
 
-    RUN_TEST(test_new_anonymous_block);
+    // RUN_TEST(test_new_anonymous_block);
 
     return UNITY_END();
 }

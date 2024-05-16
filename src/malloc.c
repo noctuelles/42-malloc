@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 13:54:58 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 22:29:51 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,15 +73,14 @@ find_appropriate_free_block(size_t size) {
 
 void *
 malloc(size_t size) {
-    t_pool *targeted_pool = NULL;
-
     if (init_malloc() == -1 || size == 0) {
         return (NULL);
     }
+    return (NULL);
 }
 
-void *
-realloc(void *ptr, size_t size) {}
+// void *
+// realloc(void *ptr, size_t size) {}
 
 void
 free(void *ptr) {

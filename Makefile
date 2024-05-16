@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/13 14:19:27 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/16 22:30:33 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,10 @@ UNITY_PATH=unity/src
 
 # Sources
 
-SRC=main.c
+SRC=block.c \
+    heap.c \
+	malloc.c \
+	pool.c
 SRC_TEST=$(wildcard $(TEST_PATH)/*.c)
 
 # Compilation
@@ -40,7 +43,7 @@ LINK=gcc
 CFLAGS=-Wall -Werror -Wextra
 DEBUG=-g3
 
-PROJECT_INC=-I$(INC_PATH)
+PROJECT_INC=-I$(INC_PATH) -I.
 UNITY_INC=-I$(UNITY_PATH)
 INCS=$(PROJECT_INC) $(UNITY_INC)
 
@@ -82,7 +85,7 @@ $(TEST_RESULTS_PATH)/%.txt: $(BUILD_PATH)/%.$(TARGET_EXTENSION)
 	-./$< > $@ 2>&1
 
 # Rule to link test runner
-$(BUILD_PATH)/test_%.$(TARGET_EXTENSION): $(OBJS_PATH)/test_%.o $(OBJS_PATH)/unity.o $(OBJS_PATH)/%.o
+$(BUILD_PATH)/test_%.$(TARGET_EXTENSION): $(OBJS_PATH)/test_%.o $(OBJS_PATH)/unity.o $(PROJECT_OBJS)
 	$(LINK) -o $@ $^
 
 # Rule to compile the files of the project

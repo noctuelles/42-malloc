@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 14:09:25 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 22:16:27 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ High addr   +--------------+
 #define FREE 0U
 
 #define GET_WORD(ptr) (*(t_word *)(ptr))
+#define GET_DWORD(ptr) (*(t_dword *)(ptr))
 #define PUT_WORD(ptr, val) (*(t_word *)(ptr) = (val))
 
 /* The first 3 LSB are unused : the block size must be a multiple of 8 bytes
@@ -112,6 +113,7 @@ High addr   +--------------+
  */
 #define PREV_BLK(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
 
+void *new_anonymous_block(size_t size);
 void *coalesce_block(void *block_ptr);
 void  place_block(void *blk, const size_t adj_size);
 

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 18:31:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 22:56:24 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,45 +59,39 @@ get_adj_pool_size(size_t max_alloc_size) {
 }
 
 void *
-init_fill_pool(t_byte *base_ptr, size_t free_blk_size) {
-    void *epilogue_blk = NULL;
-    void *free_blk     = NULL;
-    void *prologue_blk = NULL;
+extend_pool(t_pool *pool, size_t words) {
+    t_byte *heap_brk = NULL;
+    void   *free_blk = NULL;
 
-    /* Alignement padding */
-
-    PUT_WORD(base_ptr, 0x00000000U);
-
-    /* Prologue block */
-
-    prologue_blk = base_ptr + (2 * WORD_SIZE);
-
-    PUT_WORD(GET_HDR(prologue_blk), PACK(DWORD_SIZE, ALLOCATED));
-    PUT_WORD(GET_FTR(prologue_blk), PACK(DWORD_SIZE, ALLOCATED));
-
-    /* Initial free block */
-
-    free_blk = NEXT_BLK(prologue_blk);
-
-    PUT_WORD(GET_HDR(free_blk), PACK(free_blk_size, FREE));
-    PUT_WORD(GET_FTR(free_blk), PACK(free_blk_size, FREE));
-
-    /* Epilogue block */
-
-    epilogue_blk = NEXT_BLK(free_blk);
-
-    PUT_WORD(GET_HDR(epilogue_blk), PACK(0, ALLOCATED));
-
-    return (epilogue_blk);
+    words    = (words % 2) ? (words + 1) * WORD_SIZE : words * WORD_SIZE;
+    heap_brk = sbrk_heap(&pool->heap, words);
+    if (heap_brk == (void *)-1) {
+        return (NULL);
+    }
+    PUT_WORD(GET_HDR(heap_brk), PACK(words, FREE));
+    PUT_WORD(GET_FTR(heap_brk), PACK(words, FREE));
+    PUT_WORD(GET_HDR(NEXT_BLK(heap_brk)), PACK(0, ALLOCATED));
+    free_blk = coalesce_block(heap_brk);
+    if (pool->free_list_head == NULL) {
+        pool->free_list_head = free_blk;
+    }
+    return (free_blk);
 }
 
 int
 init_pool(t_pool *pool) {
-    pool->size     = get_adj_pool_size(pool->max_alloc_size);
-    pool->base_ptr = mmap(NULL, pool->size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (pool->base_ptr == MAP_FAILED) {
+    t_byte *heap = NULL;
+
+    heap = sbrk_heap(&pool->heap, 4);
+    if (heap == (void *)-1) {
         return (-1);
     }
-    pool->beginning_ptr = init_fill_pool(pool->base_ptr, pool->size - (4 * WORD_SIZE));
+    PUT_WORD(heap, 0U);
+    PUT_WORD(heap + (1 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
+    PUT_WORD(heap + (2 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
+    PUT_WORD(heap + (3 * WORD_SIZE), PACK(0, ALLOCATED));
+    if (extend_pool(pool, 3) == NULL) {
+        return (-1);
+    }
     return (0);
 }

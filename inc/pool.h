@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/15 17:57:26 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 22:43:42 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "heap.h"
 #include "inc/malloc.h"
 
 #define N_POOLS 2
@@ -35,12 +36,11 @@ typedef uint32_t t_word;
 typedef uint64_t t_dword;
 
 typedef struct s_pool {
-    size_t  min_alloc_size;
-    size_t  max_alloc_size;
-    t_byte *base_ptr;
-    /* ptr always point to the prologue block of the pool. */
-    t_byte *beginning_ptr;
-    size_t  size;
+    size_t min_alloc_size;
+    size_t max_alloc_size;
+
+    t_heap heap;
+    void  *free_list_head;
 } t_pool;
 
 int   init_pool(t_pool *pool);
