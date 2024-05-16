@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 22:16:27 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 23:10:20 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 
 #include "malloc.h"
 #include "stdint.h"
+
+typedef struct s_free_list {
+    struct s_free_list *prev;
+    struct s_free_list *next;
+} t_free_list;
 
 /*
 Structure of the implicit free list :
@@ -83,6 +88,7 @@ High addr   +--------------+
 #define GET_WORD(ptr) (*(t_word *)(ptr))
 #define GET_DWORD(ptr) (*(t_dword *)(ptr))
 #define PUT_WORD(ptr, val) (*(t_word *)(ptr) = (val))
+#define PUT_DWORD(ptr, val) (*(t_dword *)(ptr) = (val))
 
 /* The first 3 LSB are unused : the block size must be a multiple of 8 bytes
    (for aligment). The size is thus encoded in the remaining 29 bits.
@@ -112,6 +118,9 @@ High addr   +--------------+
  * @note To get to he previous block pointer, we have to read the previous block size footer, and decrement accordingly.
  */
 #define PREV_BLK(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
+
+#define FREE_PREV(blk_ptr) ((t_byte *)(blk_ptr))
+#define FREE_NEXT(blk_ptr) ((t_byte *)(blk_ptr) + DWORD_SIZE)
 
 void *new_anonymous_block(size_t size);
 void *coalesce_block(void *block_ptr);

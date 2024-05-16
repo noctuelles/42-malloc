@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 22:29:51 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 23:19:57 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,8 @@ malloc(size_t size) {
 
 void
 free(void *ptr) {
-    void *hdr_ptr = GET_HDR(ptr);
+    void   *hdr_ptr = GET_HDR(ptr);
+    t_pool *pool    = NULL;
 
     if (ptr == NULL) {
         return;
@@ -93,4 +94,14 @@ free(void *ptr) {
         (void)munmap(hdr_ptr, GET_SIZE(hdr_ptr));
         return;
     }
+    PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+    PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+
+    ptr = coalesce_block(ptr);
+
+    PUT_DWORD(PREV_BLK(ptr), NULL);
+    PUT_DWORD(NEXT_BLK(ptr), pool->free_list_head);
+    PUT_DWORD(PREV_BLK(pool->free_list_head), ptr);
+
+    pool->free_list_head = ptr;
 }

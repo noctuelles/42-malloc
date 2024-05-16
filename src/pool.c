@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 22:56:24 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/16 23:11:07 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ extend_pool(t_pool *pool, size_t words) {
     }
     PUT_WORD(GET_HDR(heap_brk), PACK(words, FREE));
     PUT_WORD(GET_FTR(heap_brk), PACK(words, FREE));
+    PUT_DWORD(PREV_BLK(heap_brk), NULL);
+    PUT_DWORD(NEXT_BLK(heap_brk), NULL);
     PUT_WORD(GET_HDR(NEXT_BLK(heap_brk)), PACK(0, ALLOCATED));
     free_blk = coalesce_block(heap_brk);
     if (pool->free_list_head == NULL) {
