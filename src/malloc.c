@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 23:19:57 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/17 14:38:39 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,16 @@
 #include "pool.h"
 
 static t_pool g_pools[N_POOLS] = {{
-                                      .min_alloc_size = POOL_ONE_MIN_ALLOC_SIZE,
-                                      .max_alloc_size = POOL_ONE_MAX_ALLOC_SIZE,
-                                      .beginning_ptr  = NULL,
-                                      .size           = 0,
+                                      .min_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MIN_ALLOC_SIZE),
+                                      .max_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MAX_ALLOC_SIZE),
+                                      .free_list_head = NULL,
+                                      .heap           = {0},
                                   },
                                   {
-                                      .min_alloc_size = POOL_TWO_MIN_ALLOC_SIZE,
-                                      .max_alloc_size = POOL_TWO_MAX_ALLOC_SIZE,
-                                      .beginning_ptr  = NULL,
-                                      .size           = 0,
+                                      .min_alloc_size = ADJ_ALLOC_SIZE(POOL_TWO_MIN_ALLOC_SIZE),
+                                      .max_alloc_size = ADJ_ALLOC_SIZE(POOL_TWO_MAX_ALLOC_SIZE),
+                                      .free_list_head = NULL,
+                                      .heap           = {0},
                                   }};
 
 /**
@@ -64,28 +64,71 @@ init_malloc() {
  * @param size allocation size.
  * @return void* the free block or NULL.
  */
-void *
-find_appropriate_free_block(size_t size) {
-    // TODO
-    (void)size;
+static void *
+find_free_block_in_pools(size_t adj_size) {
+    size_t i = 0;
+
+    while (i < N_POOLS) {
+        if (adj_size >= g_pools[i].min_alloc_size && adj_size <= g_pools[i].max_alloc_size) {
+            return (find_fit_pool(&g_pools[i], adj_size));
+        }
+        i++;
+    }
     return (NULL);
 }
 
 void *
 malloc(size_t size) {
+    size_t  adj_size = ADJ_ALLOC_SIZE(size);
+    t_pool *pool     = NULL;
+    void   *blk      = NULL;
+    size_t  i        = 0;
+
     if (init_malloc() == -1 || size == 0) {
         return (NULL);
+    }
+    while (i < N_POOLS) {
+        pool = &g_pools[i];
+        if (adj_size >= pool->min_alloc_size && adj_size <= pool->max_alloc_size) {
+            blk = find_fit_pool(pool, adj_size);
+            break;
+        }
+        i++;
     }
     return (NULL);
 }
 
 // void *
-// realloc(void *ptr, size_t size) {}
+// realloc(void *ptr, size_t size) {
+//     size            = ADJ_ALLOC_SIZE(size);
+//     size_t blk_size = GET_SIZE(GET_HDR(ptr));
+
+//     if (ptr == NULL) {
+//         return (malloc(size));
+//     }
+//     if (size == 0) {
+//         free(ptr);
+//         return (NULL);
+//     }
+//     if (size == blk_size) {
+//         return (ptr);
+//     }
+//     if (size < blk_size) {
+//         // TODO: best to just cut the reminder.
+//         free(ptr);
+//         return (malloc(size));
+//     }
+
+//     if (GET_ALLOC(GET_HDR(NEXT_BLK(ptr))) == FREE) {
+//     }
+// }
 
 void
 free(void *ptr) {
     void   *hdr_ptr = GET_HDR(ptr);
     t_pool *pool    = NULL;
+
+    // TODO: get the pool size.
 
     if (ptr == NULL) {
         return;
@@ -99,9 +142,9 @@ free(void *ptr) {
 
     ptr = coalesce_block(ptr);
 
-    PUT_DWORD(PREV_BLK(ptr), NULL);
-    PUT_DWORD(NEXT_BLK(ptr), pool->free_list_head);
-    PUT_DWORD(PREV_BLK(pool->free_list_head), ptr);
+    PUT_DWORD(FREE_PREV(ptr), NULL);
+    PUT_DWORD(FREE_NEXT(ptr), pool->free_list_head);
+    PUT_DWORD(FREE_PREV(pool->free_list_head), ptr);
 
     pool->free_list_head = ptr;
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 23:11:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/18 15:51:11 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,25 +21,15 @@
 #include "inc/malloc.h"
 #include "malloc.h"
 
-void
-release_pool(t_pool *pool) {
-    if (pool->base_ptr) {
-        (void)munmap(pool->base_ptr, pool->size);
-        pool->beginning_ptr = NULL;
-        pool->base_ptr      = NULL;
-        pool->size          = 0;
-    }
-}
-
 void *
-find_fit_pool(const t_pool *pool, const size_t size) {
-    void *blk = pool->beginning_ptr;
+find_fit_pool(const t_pool *pool, const size_t adj_size) {
+    void *blk = pool->free_list_head;
 
-    while (GET_SIZE(GET_HDR(blk)) != 0) {
-        if (GET_ALLOC(GET_HDR(blk)) == FREE && (size <= GET_SIZE(GET_HDR(blk)))) {
+    while (blk != NULL) {
+        if (GET_SIZE(GET_HDR(blk)) >= adj_size) {
             return (blk);
         }
-        blk = NEXT_BLK(blk);
+        blk = FREE_NEXT(blk);
     }
     return (NULL);
 }
@@ -70,13 +60,8 @@ extend_pool(t_pool *pool, size_t words) {
     }
     PUT_WORD(GET_HDR(heap_brk), PACK(words, FREE));
     PUT_WORD(GET_FTR(heap_brk), PACK(words, FREE));
-    PUT_DWORD(PREV_BLK(heap_brk), NULL);
-    PUT_DWORD(NEXT_BLK(heap_brk), NULL);
     PUT_WORD(GET_HDR(NEXT_BLK(heap_brk)), PACK(0, ALLOCATED));
-    free_blk = coalesce_block(heap_brk);
-    if (pool->free_list_head == NULL) {
-        pool->free_list_head = free_blk;
-    }
+    free_blk = coalesce_block(pool->free_list_head, heap_brk);
     return (free_blk);
 }
 

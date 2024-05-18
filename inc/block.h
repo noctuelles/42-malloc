@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 23:10:20 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/18 15:51:00 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ High addr   +--------------+
 #define FREE_NEXT(blk_ptr) ((t_byte *)(blk_ptr) + DWORD_SIZE)
 
 void *new_anonymous_block(size_t size);
-void *coalesce_block(void *block_ptr);
+void *coalesce_block(void **free_block_head, void *block_ptr);
 void  place_block(void *blk, const size_t adj_size);
 
 #endif
