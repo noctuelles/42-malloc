@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 22:00:46 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:20:01 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 12:05:32 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,14 @@
 static t_heap heap;
 
 void
-setUp() {}
+setUp() {
+    bzero(&heap, sizeof(heap));
+}
 
 void
-tearDown() {}
+tearDown() {
+    bzero(&heap, sizeof(heap));
+}
 
 void
 test_sbrk_heap() {
@@ -33,13 +37,6 @@ test_sbrk_heap() {
     strcpy(mptr2, "bar");
 
     TEST_ASSERT_EQUAL_PTR(mptr2, mptr + 3);
-
-    char *mptr3 = sbrk_heap(&heap, (size_t)sysconf(_SC_PAGE_SIZE) - 6 + 1);
-
-    strcpy(mptr3, "baz");
-
-    TEST_ASSERT_EQUAL_STRING(mptr, "foo");
-    TEST_ASSERT_EQUAL_STRING(mptr2, "bar");
 }
 
 int

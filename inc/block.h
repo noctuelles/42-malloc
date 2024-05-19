@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:11:50 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:46:17 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ typedef struct s_free_list {
 #define ALLOCATED 1U
 #define ANONYMOUS (1U << 1)
 #define FREE 0U
+#define MIN_BLK_SIZE (4 * DWORD_SIZE)
 
 #define GET_WORD(ptr) (*(t_word *)(ptr))
 #define GET_DWORD(ptr) (*(t_dword *)(ptr))

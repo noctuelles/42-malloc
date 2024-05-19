@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:13:36 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 12:06:01 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ init_malloc() {
 }
 
 void *
-malloc(size_t size) {
+my_malloc(size_t size) {
     size_t  adj_size = ADJ_ALLOC_SIZE(size);
     t_pool *pool     = NULL;
     void   *blk      = NULL;
@@ -76,7 +76,9 @@ malloc(size_t size) {
         }
         i++;
     }
-    (void)blk;
+    if (blk == NULL) {
+        return (NULL);
+    }
     return (NULL);
 }
 
@@ -106,7 +108,7 @@ malloc(size_t size) {
 // }
 
 void
-free(void *ptr) {
+my_free(void *ptr) {
     void *hdr_ptr = GET_HDR(ptr);
 
     if (ptr == NULL) {

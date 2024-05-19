@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 20:38:56 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/18 21:25:16 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:54:19 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,13 @@ init_heap(t_heap *heap, size_t initial_size) {
  */
 void *
 sbrk_heap(t_heap *heap, size_t increment) {
-    uint8_t *old_brk             = heap->brk;
+    uint8_t *old_brk             = NULL;
     size_t   heap_extension_size = 0;
 
     if (heap->base == NULL) {
-        return (init_heap(heap, increment));
+        old_brk = init_heap(heap, increment);
+    } else {
+        old_brk = heap->brk;
     }
     if (heap->brk + increment > heap->max_addr) {
         heap_extension_size = align_on_page_size_boundary(increment);

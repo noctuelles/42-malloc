@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:07:30 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:40:39 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,25 +64,23 @@ tearDown() {
 //     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&dword));
 // }
 
-// void
-// test_place_block_INSIDE_LARGE_FREE() {
-//     const size_t blk_size = 16;
+void
+test_place_block_INSIDE_LARGE_FREE() {
+    const size_t blk_size = 32;
+    t_free_list *head     = NULL;
 
-//     ptr_fake_heap += WORD_SIZE;
+    ptr_fake_heap = ptr_fake_heap + WORD_SIZE;
+    head          = (t_free_list *)ptr_fake_heap;
 
-//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
-//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
+    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
+    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
 
-//     place_block(ptr_fake_heap, blk_size);
+    place_blk(&head, ptr_fake_heap, blk_size);
 
-//     TEST_ASSERT_EQUAL(blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
-//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(ptr_fake_heap)));
-
-//     ptr_fake_heap = NEXT_BLK(ptr_fake_heap);
-
-//     TEST_ASSERT_EQUAL(FAKE_HEAP_SIZE - blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
-//     TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(ptr_fake_heap)));
-// }
+    TEST_ASSERT_EQUAL_PTR(head, NEXT_BLK(ptr_fake_heap));
+    TEST_ASSERT_EQUAL_PTR(head->next, ptr_fake_heap);
+    TEST_ASSERT_EQUAL_PTR(head->prev, NULL);
+}
 
 // void
 // test_place_block_EXACT_SIZE() {
@@ -284,9 +282,7 @@ int
 main(void) {
     UNITY_BEGIN();
 
-    /* Anonymous block */
-
-    // RUN_TEST(test_new_anonymous_block);
+    RUN_TEST(test_place_block_INSIDE_LARGE_FREE);
 
     return UNITY_END();
 }
