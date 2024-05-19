@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/18 11:24:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:10:31 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "block.h"
 #include "heap.h"
 #include "inc/malloc.h"
 
@@ -39,12 +40,11 @@ typedef struct s_pool {
     size_t min_alloc_size;
     size_t max_alloc_size;
 
-    t_heap heap;
-    void  *free_list_head;
+    t_heap       heap;
+    t_free_list *head;
 } t_pool;
 
 int   init_pool(t_pool *pool);
-void  push_front_free_blk(void **free_list_head, void *free_blk);
 void *find_fit_pool(const t_pool *pool, const size_t size);
 
 #endif

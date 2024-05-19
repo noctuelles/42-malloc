@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 22:00:46 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 22:28:18 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:20:01 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,7 @@
 static t_heap heap;
 
 void
-setUp() {
-    init_heap(&heap, (size_t)sysconf(_SC_PAGE_SIZE));
-}
+setUp() {}
 
 void
 tearDown() {}

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/18 15:51:11 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:14:46 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,13 @@
 
 void *
 find_fit_pool(const t_pool *pool, const size_t adj_size) {
-    void *blk = pool->free_list_head;
+    t_free_list *blk = pool->head;
 
     while (blk != NULL) {
         if (GET_SIZE(GET_HDR(blk)) >= adj_size) {
             return (blk);
         }
-        blk = FREE_NEXT(blk);
+        blk = blk->next;
     }
     return (NULL);
 }
@@ -61,7 +61,7 @@ extend_pool(t_pool *pool, size_t words) {
     PUT_WORD(GET_HDR(heap_brk), PACK(words, FREE));
     PUT_WORD(GET_FTR(heap_brk), PACK(words, FREE));
     PUT_WORD(GET_HDR(NEXT_BLK(heap_brk)), PACK(0, ALLOCATED));
-    free_blk = coalesce_block(pool->free_list_head, heap_brk);
+    free_blk = coalesce_blk(&pool->head, heap_brk);
     return (free_blk);
 }
 
@@ -77,7 +77,7 @@ init_pool(t_pool *pool) {
     PUT_WORD(heap + (1 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
     PUT_WORD(heap + (2 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
     PUT_WORD(heap + (3 * WORD_SIZE), PACK(0, ALLOCATED));
-    if (extend_pool(pool, 3) == NULL) {
+    if (extend_pool(pool, 1 << 12) == NULL) {
         return (-1);
     }
     return (0);

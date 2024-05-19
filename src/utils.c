@@ -1,30 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_malloc.c                                      :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/18 20:56:14 by plouvel          ###   ########.fr       */
+/*   Created: 2024/05/18 21:24:07 by plouvel           #+#    #+#             */
+/*   Updated: 2024/05/18 21:24:22 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc.h"
-#include "unity.h"
+#include <unistd.h>
 
-void
-setUp() {}
-
-void
-tearDown() {}
-
-void
-test_adj_alloc_size() {}
-
-int
-main(void) {
-    UNITY_BEGIN();
-    RUN_TEST(test_adj_alloc_size);
-    return UNITY_END();
+size_t
+align_on_page_size_boundary(size_t initial_size) {
+    const size_t page_size = (size_t)sysconf(_SC_PAGE_SIZE);
+    return (page_size * ((initial_size + (page_size - 1)) / page_size));
 }

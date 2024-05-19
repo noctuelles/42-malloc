@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 20:38:56 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 23:43:22 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/18 21:25:16 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-static size_t
-align_on_page_size_boundary(size_t initial_size) {
-    const size_t page_size = (size_t)sysconf(_SC_PAGE_SIZE);
-    return (page_size * ((initial_size + (page_size - 1)) / page_size));
-}
+#include "utils.h"
 
 /**
  * @brief Initialize a heap structure.
@@ -56,7 +52,7 @@ sbrk_heap(t_heap *heap, size_t increment) {
     size_t   heap_extension_size = 0;
 
     if (heap->base == NULL) {
-        return (init_heap(&heap, increment));
+        return (init_heap(heap, increment));
     }
     if (heap->brk + increment > heap->max_addr) {
         heap_extension_size = align_on_page_size_boundary(increment);

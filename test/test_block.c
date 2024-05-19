@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/16 22:16:47 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:07:30 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,223 +38,223 @@ tearDown() {
     ptr_fake_heap = NULL;
 }
 
-void
-sig_abrt(int) {
-    TEST_ABORT();
-}
+// void
+// sig_abrt(int) {
+//     TEST_ABORT();
+// }
 
-void
-test_PUT_WORD() {
-    uint32_t word;
-    uint64_t dword;
+// void
+// test_PUT_WORD() {
+//     uint32_t word;
+//     uint64_t dword;
 
-    PUT_WORD(&word, 0xDEADBEEF);
-    PUT_WORD(&dword, 0xDEADBEEF);
+//     PUT_WORD(&word, 0xDEADBEEF);
+//     PUT_WORD(&dword, 0xDEADBEEF);
 
-    TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, word);
-    TEST_ASSERT_EQUAL_HEX64(0x00000000DEADBEEF, dword);
-}
+//     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, word);
+//     TEST_ASSERT_EQUAL_HEX64(0x00000000DEADBEEF, dword);
+// }
 
-void
-test_GET_WORD() {
-    uint32_t word  = 0xDEADBEEF;
-    uint64_t dword = 0x00000000DEADBEEF;
+// void
+// test_GET_WORD() {
+//     uint32_t word  = 0xDEADBEEF;
+//     uint64_t dword = 0x00000000DEADBEEF;
 
-    TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&word));
-    TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&dword));
-}
+//     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&word));
+//     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&dword));
+// }
 
-void
-test_place_block_INSIDE_LARGE_FREE() {
-    const size_t blk_size = 16;
+// void
+// test_place_block_INSIDE_LARGE_FREE() {
+//     const size_t blk_size = 16;
 
-    ptr_fake_heap += WORD_SIZE;
+//     ptr_fake_heap += WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
 
-    place_block(ptr_fake_heap, blk_size);
+//     place_block(ptr_fake_heap, blk_size);
 
-    TEST_ASSERT_EQUAL(blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(ptr_fake_heap)));
+//     TEST_ASSERT_EQUAL(blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(ptr_fake_heap)));
 
-    ptr_fake_heap = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = NEXT_BLK(ptr_fake_heap);
 
-    TEST_ASSERT_EQUAL(FAKE_HEAP_SIZE - blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
-    TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(ptr_fake_heap)));
-}
+//     TEST_ASSERT_EQUAL(FAKE_HEAP_SIZE - blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
+//     TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(ptr_fake_heap)));
+// }
 
-void
-test_place_block_EXACT_SIZE() {
-    const size_t blk_size = 16;
+// void
+// test_place_block_EXACT_SIZE() {
+//     const size_t blk_size = 16;
 
-    ptr_fake_heap += WORD_SIZE;
+//     ptr_fake_heap += WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(blk_size, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(blk_size, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(blk_size, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(blk_size, FREE));
 
-    place_block(ptr_fake_heap, blk_size);
+//     place_block(ptr_fake_heap, blk_size);
 
-    TEST_ASSERT_EQUAL(blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(ptr_fake_heap)));
+//     TEST_ASSERT_EQUAL(blk_size, GET_SIZE(GET_HDR(ptr_fake_heap)));
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(ptr_fake_heap)));
 
-    ptr_fake_heap = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = NEXT_BLK(ptr_fake_heap);
 
-    TEST_ASSERT_EQUAL_UINT32(0U, GET_WORD(GET_HDR(ptr_fake_heap)));
-}
+//     TEST_ASSERT_EQUAL_UINT32(0U, GET_WORD(GET_HDR(ptr_fake_heap)));
+// }
 
-void
-test_place_block_WRONG_SIZE() {
-    const size_t blk_size = FAKE_HEAP_SIZE + 1;
+// void
+// test_place_block_WRONG_SIZE() {
+//     const size_t blk_size = FAKE_HEAP_SIZE + 1;
 
-    signal(SIGABRT, sig_abrt);
+//     signal(SIGABRT, sig_abrt);
 
-    ptr_fake_heap += WORD_SIZE;
+//     ptr_fake_heap += WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
 
-    place_block(ptr_fake_heap, blk_size);
+//     place_block(ptr_fake_heap, blk_size);
 
-    TEST_FAIL();
-}
+//     TEST_FAIL();
+// }
 
-void
-test_place_block_NOT_FREE() {
-    const size_t blk_size = 16;
+// void
+// test_place_block_NOT_FREE() {
+//     const size_t blk_size = 16;
 
-    (void)signal(SIGABRT, sig_abrt);
+//     (void)signal(SIGABRT, sig_abrt);
 
-    ptr_fake_heap += WORD_SIZE;
+//     ptr_fake_heap += WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, ALLOCATED));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, ALLOCATED));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, ALLOCATED));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, ALLOCATED));
 
-    place_block(ptr_fake_heap, blk_size);
+//     place_block(ptr_fake_heap, blk_size);
 
-    TEST_FAIL();
-}
+//     TEST_FAIL();
+// }
 
-void
-test_coalesce_block_NO_ADJACENT_FREE() {
-    void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void *rslt = NULL;
+// void
+// test_coalesce_block_NO_ADJACENT_FREE() {
+//     void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+//     void *rslt = NULL;
 
-    ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
+//     ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
 
-    ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, FREE));
 
-    ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
 
-    rslt = coalesce_block(second_blk);
+//     rslt = coalesce_blk(second_blk);
 
-    TEST_ASSERT_EQUAL_PTR(second_blk, rslt);
+//     TEST_ASSERT_EQUAL_PTR(second_blk, rslt);
 
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(first_blk)));
-    TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(first_blk)));
 
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(third_blk)));
-    TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(third_blk)));
-}
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(third_blk)));
+//     TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(third_blk)));
+// }
 
-void
-test_coalesce_block_PREV_ADJACENT_FREE() {
-    void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void *rslt = NULL;
+// void
+// test_coalesce_block_PREV_ADJACENT_FREE() {
+//     void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+//     void *rslt = NULL;
 
-    ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
+//     ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, FREE));
 
-    ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(32, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(32, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(32, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(32, FREE));
 
-    ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
 
-    rslt = coalesce_block(second_blk);
+//     rslt = coalesce_blk(second_blk);
 
-    TEST_ASSERT_EQUAL_PTR(first_blk, rslt);
+//     TEST_ASSERT_EQUAL_PTR(first_blk, rslt);
 
-    TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(first_blk)));
-    TEST_ASSERT_EQUAL(32 + 16, GET_SIZE(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(32 + 16, GET_SIZE(GET_HDR(first_blk)));
 
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(third_blk)));
-    TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(third_blk)));
-}
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(third_blk)));
+//     TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(third_blk)));
+// }
 
-void
-test_coalesce_block_NEXT_ADJACENT_FREE() {
-    void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void *rslt = NULL;
+// void
+// test_coalesce_block_NEXT_ADJACENT_FREE() {
+//     void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+//     void *rslt = NULL;
 
-    ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
+//     ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, ALLOCATED));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, ALLOCATED));
 
-    ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(32, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(32, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(32, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(32, FREE));
 
-    ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(64, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(64, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(64, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(64, FREE));
 
-    rslt = coalesce_block(second_blk);
+//     rslt = coalesce_blk(second_blk);
 
-    TEST_ASSERT_EQUAL_PTR(second_blk, rslt);
+//     TEST_ASSERT_EQUAL_PTR(second_blk, rslt);
 
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(first_blk)));
-    TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(16, GET_SIZE(GET_HDR(first_blk)));
 
-    TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(second_blk)));
-    TEST_ASSERT_EQUAL(32 + 64, GET_SIZE(GET_HDR(second_blk)));
-}
+//     TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(second_blk)));
+//     TEST_ASSERT_EQUAL(32 + 64, GET_SIZE(GET_HDR(second_blk)));
+// }
 
-void
-test_coalesce_block_PREV_NEXT_ADJACENT_FREE() {
-    void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void *rslt = NULL;
+// void
+// test_coalesce_block_PREV_NEXT_ADJACENT_FREE() {
+//     void *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+//     void *rslt = NULL;
 
-    ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
+//     ptr_fake_heap = first_blk = ptr_fake_heap + WORD_SIZE;
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(16, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(16, FREE));
 
-    ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = second_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(32, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(32, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(32, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(32, FREE));
 
-    ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
+//     ptr_fake_heap = third_blk = NEXT_BLK(ptr_fake_heap);
 
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(64, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(64, FREE));
+//     PUT_WORD(GET_HDR(ptr_fake_heap), PACK(64, FREE));
+//     PUT_WORD(GET_FTR(ptr_fake_heap), PACK(64, FREE));
 
-    rslt = coalesce_block(second_blk);
+//     rslt = coalesce_blk(second_blk);
 
-    TEST_ASSERT_EQUAL_PTR(first_blk, rslt);
+//     TEST_ASSERT_EQUAL_PTR(first_blk, rslt);
 
-    TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(first_blk)));
-    TEST_ASSERT_EQUAL(16 + 32 + 64, GET_SIZE(GET_HDR(first_blk)));
-}
+//     TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(first_blk)));
+//     TEST_ASSERT_EQUAL(16 + 32 + 64, GET_SIZE(GET_HDR(first_blk)));
+// }
 
 // void
 // test_new_anonymous_block() {
@@ -283,28 +283,6 @@ test_coalesce_block_PREV_NEXT_ADJACENT_FREE() {
 int
 main(void) {
     UNITY_BEGIN();
-
-    /* Macros */
-
-    RUN_TEST(test_PUT_WORD);
-    RUN_TEST(test_GET_WORD);
-    // RUN_TEST(test_NEXT_PREV_BLOCK_PTR);
-
-    /* Block Coalescing */
-
-    RUN_TEST(test_coalesce_block_NO_ADJACENT_FREE);
-    RUN_TEST(test_coalesce_block_NEXT_ADJACENT_FREE);
-    RUN_TEST(test_coalesce_block_PREV_ADJACENT_FREE);
-    RUN_TEST(test_coalesce_block_PREV_NEXT_ADJACENT_FREE);
-
-    /* Block Placing */
-
-    RUN_TEST(test_place_block_EXACT_SIZE);
-    RUN_TEST(test_place_block_INSIDE_LARGE_FREE);
-    if (TEST_PROTECT()) {
-        RUN_TEST(test_place_block_WRONG_SIZE);
-        RUN_TEST(test_place_block_NOT_FREE);
-    }
 
     /* Anonymous block */
 

@@ -6,20 +6,16 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/18 15:51:00 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:11:50 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#include "malloc.h"
-#include "stdint.h"
+#include <stdint.h>
 
-typedef struct s_free_list {
-    struct s_free_list *prev;
-    struct s_free_list *next;
-} t_free_list;
+#include "utils.h"
 
 /*
 Structure of the implicit free list :
@@ -78,6 +74,11 @@ High addr   +--------------+
     N.B: (Padding) means it is optionnal.
 */
 
+typedef struct s_free_list {
+    struct s_free_list *prev;
+    struct s_free_list *next;
+} t_free_list;
+
 #define WORD_SIZE sizeof(t_word)
 #define DWORD_SIZE sizeof(t_dword)
 
@@ -119,11 +120,14 @@ High addr   +--------------+
  */
 #define PREV_BLK(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
 
-#define FREE_PREV(blk_ptr) ((t_byte *)(blk_ptr))
-#define FREE_NEXT(blk_ptr) ((t_byte *)(blk_ptr) + DWORD_SIZE)
+#define FREE_LIST_ELEM(blk_ptr) ((t_free_list *)(blk_ptr))
 
-void *new_anonymous_block(size_t size);
-void *coalesce_block(void **free_block_head, void *block_ptr);
-void  place_block(void *blk, const size_t adj_size);
+void *new_anonymous_blk(size_t size);
+
+void push_front_free_list(t_free_list **head, t_free_list *free_blk);
+void delone_free_list(t_free_list **head, t_free_list *free_blk);
+
+void *coalesce_blk(t_free_list **free_list_head, void *blk);
+void  place_blk(t_free_list **free_list_head, void *blk, const size_t adj_size);
 
 #endif

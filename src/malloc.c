@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/17 14:38:39 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:13:36 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,13 @@
 static t_pool g_pools[N_POOLS] = {{
                                       .min_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MIN_ALLOC_SIZE),
                                       .max_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MAX_ALLOC_SIZE),
-                                      .free_list_head = NULL,
+                                      .head           = NULL,
                                       .heap           = {0},
                                   },
                                   {
                                       .min_alloc_size = ADJ_ALLOC_SIZE(POOL_TWO_MIN_ALLOC_SIZE),
                                       .max_alloc_size = ADJ_ALLOC_SIZE(POOL_TWO_MAX_ALLOC_SIZE),
-                                      .free_list_head = NULL,
+                                      .head           = NULL,
                                       .heap           = {0},
                                   }};
 
@@ -47,7 +47,7 @@ init_malloc() {
     while (i < N_POOLS) {
         if (init_pool(&g_pools[i]) == -1) {
             while (j < i) {
-                release_pool(&g_pools[i]);
+                // TODO: release pool
                 j++;
             }
             return (-1);
@@ -56,25 +56,6 @@ init_malloc() {
     }
     is_init = true;
     return (0);
-}
-
-/**
- * @brief find an appropriate free block for the requested size. If no free block is available, it returns NULL.
- *
- * @param size allocation size.
- * @return void* the free block or NULL.
- */
-static void *
-find_free_block_in_pools(size_t adj_size) {
-    size_t i = 0;
-
-    while (i < N_POOLS) {
-        if (adj_size >= g_pools[i].min_alloc_size && adj_size <= g_pools[i].max_alloc_size) {
-            return (find_fit_pool(&g_pools[i], adj_size));
-        }
-        i++;
-    }
-    return (NULL);
 }
 
 void *
@@ -95,6 +76,7 @@ malloc(size_t size) {
         }
         i++;
     }
+    (void)blk;
     return (NULL);
 }
 
@@ -125,10 +107,7 @@ malloc(size_t size) {
 
 void
 free(void *ptr) {
-    void   *hdr_ptr = GET_HDR(ptr);
-    t_pool *pool    = NULL;
-
-    // TODO: get the pool size.
+    void *hdr_ptr = GET_HDR(ptr);
 
     if (ptr == NULL) {
         return;
@@ -137,14 +116,4 @@ free(void *ptr) {
         (void)munmap(hdr_ptr, GET_SIZE(hdr_ptr));
         return;
     }
-    PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-    PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-
-    ptr = coalesce_block(ptr);
-
-    PUT_DWORD(FREE_PREV(ptr), NULL);
-    PUT_DWORD(FREE_NEXT(ptr), pool->free_list_head);
-    PUT_DWORD(FREE_PREV(pool->free_list_head), ptr);
-
-    pool->free_list_head = ptr;
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/18 16:09:54 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 11:12:14 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,103 +17,94 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-void
-push_front_free_blk(void **free_list_head, void *free_blk) {
-    assert(GET_ALLOC(GET_HDR(free_blk)) == FREE);
+#include "utils.h"
 
-    if (*free_list_head == NULL) {
-        PUT_DWORD(FREE_NEXT(free_blk), NULL);
+void
+push_front_free_list(t_free_list **head, t_free_list *free_blk) {
+    if (*head == NULL) {
+        free_blk->next = NULL;
     } else {
-        PUT_DWORD(FREE_PREV(*free_list_head), free_blk);
-        PUT_DWORD(FREE_NEXT(free_blk), *free_list_head);
+        (*head)->prev  = free_blk;
+        free_blk->next = *head;
     }
-    PUT_DWORD(FREE_PREV(free_blk), NULL);
-    *free_list_head = free_blk;
+    free_blk->prev = NULL;
+    *head          = free_blk;
 }
 
 void
-remove_free_blk(void **free_list_head, void *free_blk) {
-    assert(GET_ALLOC(GET_HDR(free_blk)) == FREE);
+delone_free_list(t_free_list **head, t_free_list *free_blk) {
+    if (*head == free_blk) {
+        *head = free_blk->next;
 
-    if (*free_list_head = free_blk) {
-        *free_list_head = GET_DWORD(FREE_NEXT(free_blk));
-
-        if (*free_list_head) {
-            PUT_DWORD(FREE_PREV(*free_list_head), NULL);
+        if (*head) {
+            (*head)->prev = NULL;
         }
     } else {
-        PUT_DWORD(FREE_NEXT(GET_DWORD(FREE_PREV(free_blk))), FREE_NEXT(free_blk));
+        free_blk->prev->next = free_blk->next;
 
-        if (GET_DWORD(FREE_NEXT(free_blk))) {
-            PUT_DWORD(FREE_PREV(GET_DWORD(FREE_NEXT(free_blk))), FREE_PREV(free_blk));
+        if (free_blk->next) {
+            free_blk->next->prev = free_blk->prev;
         }
     }
 }
 
-void
-move_blk_list_values(void *free_blk, void *old_free_blk) {
-    PUT_DWORD(FREE_PREV(free_blk), FREE_PREV(old_free_blk));
-    PUT_DWORD(FREE_NEXT(free_blk), FREE_NEXT(old_free_blk));
+static void
+move_blk_list_values(t_free_list *free_blk, t_free_list *old_free_blk) {
+    free_blk->prev = old_free_blk->prev;
+    free_blk->next = old_free_blk->next;
 
-    if (GET_DWORD(FREE_PREV(free_blk)) != NULL) {
-        PUT_DWORD(FREE_NEXT(GET_DWORD(FREE_PREV(free_blk))), free_blk);
+    if (free_blk->prev != NULL) {
+        free_blk->prev = free_blk;
     }
-
-    if (GET_DWORD(FREE_PREV(free_blk)) != NULL) {
-        PUT_DWORD(FREE_PREV(GET_DWORD(FREE_NEXT(free_blk))), free_blk);
+    if (free_blk->next != NULL) {
+        free_blk->next = free_blk;
     }
 }
 
-/**
- * @brief Coalesce adjacent block if they are free.
- *
- * @param block_ptr
- * @return void*
- */
 void *
-coalesce_block(void **free_list_head, void *blk_ptr) {
-    void *next_blk_ptr = NEXT_BLK(blk_ptr);
-    void *prev_blk_ptr = PREV_BLK(blk_ptr);
+coalesce_blk(t_free_list **free_list_head, void *blk) {
+    void *next_blk = NEXT_BLK(blk);
+    void *prev_blk = PREV_BLK(blk);
 
-    size_t prev_blk_allocated = GET_ALLOC(GET_FTR(prev_blk_ptr));
-    size_t next_blk_allocated = GET_ALLOC(GET_HDR(next_blk_ptr));
-    size_t curr_blk_size      = GET_SIZE(GET_HDR(blk_ptr));
+    size_t prev_blk_alloc = GET_ALLOC(GET_FTR(prev_blk));
+    size_t next_blk_alloc = GET_ALLOC(GET_HDR(next_blk));
+    size_t curr_blk_size  = GET_SIZE(GET_HDR(blk));
 
-    if (prev_blk_allocated && next_blk_allocated) {
-        push_front_free_blk(free_list_head, blk_ptr);
+    if (prev_blk_alloc && next_blk_alloc) {
+        push_front_free_list(free_list_head, blk);
 
-        return (blk_ptr);
+        return (blk);
     }
-    if (prev_blk_allocated && !next_blk_allocated) {
-        curr_blk_size += GET_SIZE(GET_HDR(next_blk_ptr));
+    if (prev_blk_alloc && !next_blk_alloc) {
+        curr_blk_size += GET_SIZE(GET_HDR(next_blk));
 
-        PUT_WORD(GET_HDR(blk_ptr), PACK(curr_blk_size, FREE));
-        PUT_WORD(GET_FTR(blk_ptr), PACK(curr_blk_size, FREE));
-    } else if (!prev_blk_allocated && next_blk_allocated) {
-        curr_blk_size += GET_SIZE(GET_HDR(prev_blk_ptr));
+        PUT_WORD(GET_HDR(blk), PACK(curr_blk_size, FREE));
+        PUT_WORD(GET_FTR(blk), PACK(curr_blk_size, FREE));
+    } else if (!prev_blk_alloc && next_blk_alloc) {
+        curr_blk_size += GET_SIZE(GET_HDR(prev_blk));
 
-        PUT_WORD(GET_HDR(prev_blk_ptr), PACK(curr_blk_size, FREE));
-        PUT_WORD(GET_FTR(blk_ptr), PACK(curr_blk_size, FREE));
+        PUT_WORD(GET_HDR(prev_blk), PACK(curr_blk_size, FREE));
+        PUT_WORD(GET_FTR(blk), PACK(curr_blk_size, FREE));
 
-        blk_ptr = prev_blk_ptr;
+        blk = prev_blk;
 
-        move_blk_list_values(blk_ptr, next_blk_ptr);
-    } else if (!prev_blk_allocated && !next_blk_allocated) {
-        curr_blk_size += GET_SIZE(GET_HDR(prev_blk_ptr)) + GET_SIZE(GET_HDR(next_blk_ptr));
+        move_blk_list_values(blk, next_blk);
+    } else if (!prev_blk_alloc && !next_blk_alloc) {
+        curr_blk_size += GET_SIZE(GET_HDR(prev_blk)) + GET_SIZE(GET_HDR(next_blk));
 
-        PUT_WORD(GET_HDR(prev_blk_ptr), PACK(curr_blk_size, FREE));
-        PUT_WORD(GET_FTR(next_blk_ptr), PACK(curr_blk_size, FREE));
+        PUT_WORD(GET_HDR(prev_blk), PACK(curr_blk_size, FREE));
+        PUT_WORD(GET_FTR(next_blk), PACK(curr_blk_size, FREE));
 
-        blk_ptr = prev_blk_ptr;
+        blk = prev_blk;
 
-        remove_free_blk(free_list_head, next_blk_ptr);
+        delone_free_list(free_list_head, next_blk);
     }
 
-    return (blk_ptr);
+    return (blk);
 }
 
 void
-place_block(void **free_list_head, void *blk, const size_t adj_size) {
+place_blk(t_free_list **free_list_head, void *blk, const size_t adj_size) {
     size_t blk_size = GET_SIZE(GET_HDR(blk));
 
     assert(blk_size >= adj_size);
@@ -128,7 +119,7 @@ place_block(void **free_list_head, void *blk, const size_t adj_size) {
         PUT_WORD(GET_HDR(blk), PACK(blk_size - adj_size, FREE));
         PUT_WORD(GET_FTR(blk), PACK(blk_size - adj_size, FREE));
 
-        push_front_free_blk(free_list_head, blk);
+        push_front_free_list(free_list_head, blk);
     } else {
         PUT_WORD(GET_HDR(blk), PACK(adj_size, ALLOCATED));
         PUT_WORD(GET_FTR(blk), PACK(adj_size, ALLOCATED));
@@ -142,17 +133,16 @@ place_block(void **free_list_head, void *blk, const size_t adj_size) {
  * @return void* pointer to the allocated bloc.
  */
 void *
-new_anonymous_block(size_t size) {
-    const size_t page_size = (size_t)getpagesize();
-    const size_t blk_size  = page_size * ((size + page_size) / page_size);
-    t_byte      *blk       = mmap(NULL, blk_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+new_anonymous_blk(size_t size) {
+    size        = align_on_page_size_boundary(size);
+    t_byte *blk = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 
     if (blk == MAP_FAILED) {
         return (NULL);
     }
 
-    PUT_WORD(blk, 0x00000000U);
-    PUT_DWORD(blk + (1 * WORD_SIZE), blk_size);
+    PUT_WORD(blk, 0U);
+    PUT_DWORD(blk + (1 * WORD_SIZE), size);
     PUT_WORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), PACK(0, ALLOCATED | ANONYMOUS));
 
     return (blk + (2 * WORD_SIZE + 1 * DWORD_SIZE));

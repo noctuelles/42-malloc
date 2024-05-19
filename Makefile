@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/16 22:30:33 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/19 11:15:58 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,8 @@ UNITY_PATH=unity/src
 SRC=block.c \
     heap.c \
 	malloc.c \
+	heap.c \
+	utils.c \
 	pool.c
 SRC_TEST=$(wildcard $(TEST_PATH)/*.c)
 
