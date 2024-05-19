@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 20:29:57 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 21:05:05 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,4 +110,5 @@ print_pool(const t_pool *pool, bool show_free_blks) {
         }
         blk = NEXT_BLK(blk);
     }
+    fflush(stdout);
 }

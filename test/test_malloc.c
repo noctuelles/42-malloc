@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 21:00:12 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 21:07:31 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,13 @@ test_malloc() {
     void *frth_malloc  = my_malloc(128);
     void *ffth_malloc  = my_malloc(256);
     void *sxth_malloc  = my_malloc(512);
-    void *svth_malloc  = my_malloc(513);
 
     my_free(first_malloc);
     my_free(frth_malloc);
+    my_free(thrd_malloc);
 
-    my_malloc(1);
+    my_free(ffth_malloc);
+    my_free(sxth_malloc);
 }
 
 int

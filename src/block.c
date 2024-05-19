@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 20:48:27 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 21:43:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,11 @@ move_blk_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old
     free_blk->prev = old_free_blk->prev;
     free_blk->next = old_free_blk->next;
 
-    if (free_blk->prev != NULL) {
-        free_blk->prev = free_blk;
+    if (old_free_blk->prev != NULL) {
+        old_free_blk->prev->next = free_blk;
     }
-    if (free_blk->next != NULL) {
-        free_blk->next = free_blk;
+    if (old_free_blk->next != NULL) {
+        old_free_blk->next->prev = free_blk;
     }
     if (old_free_blk == *head) {
         *head = free_blk;
