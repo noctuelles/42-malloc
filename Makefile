@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/19 11:15:58 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/19 21:02:11 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,7 @@ UNITY_PATH=unity/src
 SRC=block.c \
     heap.c \
 	malloc.c \
+	hexdump.c \
 	heap.c \
 	utils.c \
 	pool.c
@@ -100,7 +101,7 @@ $(OBJS_PATH)/%.o:: $(UNITY_PATH)/%.c $(UNITY_PATH)/%.h | $(OBJS_PATH)
 
 # Rule to compile the tests of the project
 $(OBJS_PATH)/%.o:: $(TEST_PATH)/%.c | $(OBJS_PATH)
-	$(CC) $(CFLAGS) $(DEBUG) $(INCS) -c $< -o $@
+	$(CC) $(DEBUG) $(INCS) -c $< -o $@
 
 $(OBJS_PATH):
 	$(MKDIR) $@

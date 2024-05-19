@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:46:17 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 19:58:45 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,6 @@ void push_front_free_list(t_free_list **head, t_free_list *free_blk);
 void delone_free_list(t_free_list **head, t_free_list *free_blk);
 
 void *coalesce_blk(t_free_list **free_list_head, void *blk);
-void  place_blk(t_free_list **free_list_head, void *blk, const size_t adj_size);
+void  place_blk(t_free_list **head, void *blk, const size_t adj_size);
 
 #endif

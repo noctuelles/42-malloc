@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 12:07:20 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 21:00:12 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,18 @@ test_ADJ_ALLOC_SIZE() {
 
 void
 test_malloc() {
-    my_malloc(12);
+    void *first_malloc = my_malloc(12);
+    void *sncd_malloc  = my_malloc(31);
+    void *thrd_malloc  = my_malloc(57);
+    void *frth_malloc  = my_malloc(128);
+    void *ffth_malloc  = my_malloc(256);
+    void *sxth_malloc  = my_malloc(512);
+    void *svth_malloc  = my_malloc(513);
+
+    my_free(first_malloc);
+    my_free(frth_malloc);
+
+    my_malloc(1);
 }
 
 int

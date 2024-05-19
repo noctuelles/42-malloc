@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 15:19:23 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 20:29:57 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,29 @@ init_pool(t_pool *pool) {
     if (extend_pool(pool, (1 << 12) / WORD_SIZE) == NULL) {
         return (-1);
     }
+    pool->beginning = NEXT_BLK(heap + (2 * WORD_SIZE));
     return (0);
+}
+
+void
+print_pool(const t_pool *pool, bool show_free_blks) {
+    void        *blk      = pool->beginning;
+    t_free_list *free_blk = NULL;
+
+    printf("## Pool [%lu;%lu] ##\n", pool->min_alloc_size, pool->max_alloc_size);
+    while (GET_SIZE(GET_HDR(blk)) != 0) {
+        if (GET_ALLOC(GET_HDR(blk)) == FREE && show_free_blks) {
+            free_blk = FREE_LIST_ELEM(blk);
+            if (blk == pool->head) {
+                printf("Free Block %p : %u bytes [HEAD]\n", blk, GET_SIZE(GET_HDR(blk)));
+            } else {
+                printf("Free Block %p : %u bytes\n", blk, GET_SIZE(GET_HDR(blk)));
+            }
+            printf("\t- prev : %p\n", free_blk->prev);
+            printf("\t- next : %p\n", free_blk->next);
+        } else {
+            printf("Allocated Block %p : %u bytes\n", blk, GET_SIZE(GET_HDR(blk)));
+        }
+        blk = NEXT_BLK(blk);
+    }
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:40:39 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 19:46:36 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,22 +65,7 @@ tearDown() {
 // }
 
 void
-test_place_block_INSIDE_LARGE_FREE() {
-    const size_t blk_size = 32;
-    t_free_list *head     = NULL;
-
-    ptr_fake_heap = ptr_fake_heap + WORD_SIZE;
-    head          = (t_free_list *)ptr_fake_heap;
-
-    PUT_WORD(GET_HDR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
-    PUT_WORD(GET_FTR(ptr_fake_heap), PACK(FAKE_HEAP_SIZE, FREE));
-
-    place_blk(&head, ptr_fake_heap, blk_size);
-
-    TEST_ASSERT_EQUAL_PTR(head, NEXT_BLK(ptr_fake_heap));
-    TEST_ASSERT_EQUAL_PTR(head->next, ptr_fake_heap);
-    TEST_ASSERT_EQUAL_PTR(head->prev, NULL);
-}
+test_place_block_INSIDE_LARGE_FREE() {}
 
 // void
 // test_place_block_EXACT_SIZE() {

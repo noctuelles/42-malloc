@@ -6,13 +6,14 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:10:31 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 20:29:24 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef POOL_H
 #define POOL_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -42,9 +43,11 @@ typedef struct s_pool {
 
     t_heap       heap;
     t_free_list *head;
+    void        *beginning;
 } t_pool;
 
 int   init_pool(t_pool *pool);
 void *find_fit_pool(const t_pool *pool, const size_t size);
+void  print_pool(const t_pool *pool, bool show_free_blks);
 
 #endif
