@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:14:46 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 15:19:23 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,14 +52,15 @@ void *
 extend_pool(t_pool *pool, size_t words) {
     t_byte *heap_brk = NULL;
     void   *free_blk = NULL;
+    size_t  bytes    = 0;
 
-    words    = (words % 2) ? (words + 1) * WORD_SIZE : words * WORD_SIZE;
-    heap_brk = sbrk_heap(&pool->heap, words);
+    bytes    = (words % 2) ? (words + 1) * WORD_SIZE : words * WORD_SIZE;
+    heap_brk = sbrk_heap(&pool->heap, bytes);
     if (heap_brk == (void *)-1) {
         return (NULL);
     }
-    PUT_WORD(GET_HDR(heap_brk), PACK(words, FREE));
-    PUT_WORD(GET_FTR(heap_brk), PACK(words, FREE));
+    PUT_WORD(GET_HDR(heap_brk), PACK(bytes, FREE));
+    PUT_WORD(GET_FTR(heap_brk), PACK(bytes, FREE));
     PUT_WORD(GET_HDR(NEXT_BLK(heap_brk)), PACK(0, ALLOCATED));
     free_blk = coalesce_blk(&pool->head, heap_brk);
     return (free_blk);
@@ -69,7 +70,11 @@ int
 init_pool(t_pool *pool) {
     t_byte *heap = NULL;
 
-    heap = sbrk_heap(&pool->heap, 4);
+    if (init_heap(&pool->heap, (MIN_ALLOC_PER_POOL * pool->max_alloc_size) + 4 * WORD_SIZE) == (void *)-1) {
+        return (-1);
+    }
+
+    heap = sbrk_heap(&pool->heap, 4 * WORD_SIZE);
     if (heap == (void *)-1) {
         return (-1);
     }
@@ -77,7 +82,7 @@ init_pool(t_pool *pool) {
     PUT_WORD(heap + (1 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
     PUT_WORD(heap + (2 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
     PUT_WORD(heap + (3 * WORD_SIZE), PACK(0, ALLOCATED));
-    if (extend_pool(pool, 1 << 12) == NULL) {
+    if (extend_pool(pool, (1 << 12) / WORD_SIZE) == NULL) {
         return (-1);
     }
     return (0);

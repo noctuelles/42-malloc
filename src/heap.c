@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 20:38:56 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:54:19 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/19 15:16:11 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
  * @param initial_size hint for the initial size of the heap.
  * @return void* the start of the heap.
  */
-static void *
+void *
 init_heap(t_heap *heap, size_t initial_size) {
     initial_size = align_on_page_size_boundary(initial_size);
 
@@ -48,21 +48,13 @@ init_heap(t_heap *heap, size_t initial_size) {
  */
 void *
 sbrk_heap(t_heap *heap, size_t increment) {
-    uint8_t *old_brk             = NULL;
-    size_t   heap_extension_size = 0;
+    uint8_t *old_brk = NULL;
 
-    if (heap->base == NULL) {
-        old_brk = init_heap(heap, increment);
-    } else {
-        old_brk = heap->brk;
-    }
+    assert(heap->base != NULL);
+
+    old_brk = heap->brk;
     if (heap->brk + increment > heap->max_addr) {
-        heap_extension_size = align_on_page_size_boundary(increment);
-        if (mmap(heap->max_addr, heap_extension_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED,
-                 -1, 0) == MAP_FAILED) {
-            return ((void *)-1);
-        }
-        heap->max_addr += heap_extension_size;
+        return ((void *)-1);
     }
     heap->brk += increment;
     return (old_brk);
