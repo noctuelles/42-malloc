@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 19:58:45 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/20 15:11:36 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,9 +79,6 @@ typedef struct s_free_list {
     struct s_free_list *next;
 } t_free_list;
 
-#define WORD_SIZE sizeof(t_word)
-#define DWORD_SIZE sizeof(t_dword)
-
 #define ALLOCATED 1U
 #define ANONYMOUS (1U << 1)
 #define FREE 0U
@@ -125,6 +122,7 @@ typedef struct s_free_list {
 
 void *new_anonymous_blk(size_t size);
 
+void move_free_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk);
 void push_front_free_list(t_free_list **head, t_free_list *free_blk);
 void delone_free_list(t_free_list **head, t_free_list *free_blk);
 

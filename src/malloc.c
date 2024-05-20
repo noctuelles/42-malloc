@@ -6,12 +6,13 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 20:30:47 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/20 16:23:08 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <sys/mman.h>
 
 #include "block.h"
@@ -105,30 +106,29 @@ my_malloc(size_t size) {
     return (blk);
 }
 
-// void *
-// realloc(void *ptr, size_t size) {
-//     size            = ADJ_ALLOC_SIZE(size);
-//     size_t blk_size = GET_SIZE(GET_HDR(ptr));
+void *
+realloc(void *ptr, size_t size) {
+    t_pool *blk_pool     = NULL;
+    size_t  blk_size     = GET_SIZE(GET_HDR(ptr));
+    size_t  aligned_size = align_on_dword_boundary(size);
 
-//     if (ptr == NULL) {
-//         return (malloc(size));
-//     }
-//     if (size == 0) {
-//         free(ptr);
-//         return (NULL);
-//     }
-//     if (size == blk_size) {
-//         return (ptr);
-//     }
-//     if (size < blk_size) {
-//         // TODO: best to just cut the reminder.
-//         free(ptr);
-//         return (malloc(size));
-//     }
-
-//     if (GET_ALLOC(GET_HDR(NEXT_BLK(ptr))) == FREE) {
-//     }
-// }
+    if (ptr == NULL) {
+        return (my_malloc(size));
+    }
+    if (aligned_size == 0) {
+        my_free(ptr);
+        return (NULL);
+    }
+    if (aligned_size < blk_size) {
+        my_free(ptr);
+        return (my_malloc(size));
+    }
+    if (aligned_size > blk_size) {
+        if ((blk_pool = find_blk_pool(ptr)) == NULL) {
+            return (NULL);
+        }
+    }
+}
 
 void
 my_free(void *ptr) {

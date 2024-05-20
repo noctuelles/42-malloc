@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 21:43:59 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/20 16:29:16 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ delone_free_list(t_free_list **head, t_free_list *free_blk) {
     }
 }
 
-static void
-move_blk_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk) {
+void
+move_free_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk) {
     free_blk->prev = old_free_blk->prev;
     free_blk->next = old_free_blk->next;
 
@@ -65,6 +65,51 @@ move_blk_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old
     }
 }
 
+/**
+ * @brief Tries to expand the block blk by xpnd_size bytes by using the next adjacent free block.
+ *
+ * @param head head of the free list of the pool of blk.
+ * @param blk the block expansion block.
+ * @param xpnd_size double word aligned expand size.
+ * @return void* NULL if blk cannot be expanded, blk otherwise.
+ */
+void *
+expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
+    void  *next_blk           = NEXT_BLK(blk);
+    size_t blk_size           = GET_SIZE(GET_HDR(blk));
+    size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
+    size_t size_delta         = 0;
+
+    assert(xpnd_size % 8 == 0);
+
+    if (GET_ALLOC(GET_HDR(next_blk)) == FREE) {
+        if (next_free_blk_size >= xpnd_size) {
+            size_delta = next_free_blk_size - xpnd_size;
+            if (size_delta < MIN_BLK_SIZE) {
+                delone_free_list(head, next_blk);
+                PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+                PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+            } else {
+                move_free_list_values(head, (t_byte *)next_blk + size_delta, next_blk);
+                PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+                PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+                next_blk = NEXT_BLK(blk);
+                PUT_WORD(GET_HDR(next_blk), PACK(next_free_blk_size - xpnd_size, FREE));
+                PUT_WORD(GET_FTR(next_blk), PACK(next_free_blk_size - xpnd_size, FREE));
+            }
+            return (blk);
+        }
+    }
+    return (NULL);
+}
+
+/**
+ * @brief Coalesce adjacent free block around blk.
+ *
+ * @param head head of the free list of the pool of blk.
+ * @param blk free block to be coalesced.
+ * @return void* the free block resulting from the coalescing.
+ */
 void *
 coalesce_blk(t_free_list **head, void *blk) {
     void *next_blk = NEXT_BLK(blk);
@@ -85,7 +130,7 @@ coalesce_blk(t_free_list **head, void *blk) {
         PUT_WORD(GET_HDR(blk), PACK(curr_blk_size, FREE));
         PUT_WORD(GET_FTR(blk), PACK(curr_blk_size, FREE));
 
-        move_blk_list_values(head, blk, next_blk);
+        move_free_list_values(head, blk, next_blk);
     } else if (!prev_blk_alloc && next_blk_alloc) {
         curr_blk_size += GET_SIZE(GET_HDR(prev_blk));
 
@@ -123,7 +168,7 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
         PUT_WORD(GET_HDR(blk), PACK(blk_size - adj_size, FREE));
         PUT_WORD(GET_FTR(blk), PACK(blk_size - adj_size, FREE));
 
-        move_blk_list_values(head, blk, old_free_blk);
+        move_free_list_values(head, blk, old_free_blk);
 #ifndef NDEBUG
         bzero(old_free_blk, sizeof(t_free_list));
 #endif
