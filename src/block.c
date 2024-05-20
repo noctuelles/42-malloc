@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/20 16:29:16 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/20 17:59:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,16 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
             size_delta = next_free_blk_size - xpnd_size;
             if (size_delta < MIN_BLK_SIZE) {
                 delone_free_list(head, next_blk);
-                PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
-                PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+
+                PUT_WORD(GET_HDR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
+                PUT_WORD(GET_FTR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
             } else {
-                move_free_list_values(head, (t_byte *)next_blk + size_delta, next_blk);
+                move_free_list_values(head, (t_free_list *)((t_byte *)next_blk + xpnd_size), next_blk);
                 PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
                 PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+
                 next_blk = NEXT_BLK(blk);
+
                 PUT_WORD(GET_HDR(next_blk), PACK(next_free_blk_size - xpnd_size, FREE));
                 PUT_WORD(GET_FTR(next_blk), PACK(next_free_blk_size - xpnd_size, FREE));
             }

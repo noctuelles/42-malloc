@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/20 16:23:08 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/20 17:15:07 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ realloc(void *ptr, size_t size) {
             return (NULL);
         }
     }
+    return (NULL);
 }
 
 void

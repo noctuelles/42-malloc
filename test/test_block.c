@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 19:46:36 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/20 18:01:03 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "block.h"
 #include "unity.h"
 
-#define FAKE_HEAP_SIZE 1024
+#define FAKE_HEAP_SIZE 1 << 12
 
 static t_byte  fake_heap[FAKE_HEAP_SIZE] = {0};
 static t_byte *ptr_fake_heap             = NULL;
@@ -36,6 +36,34 @@ void
 tearDown() {
     bzero(fake_heap, FAKE_HEAP_SIZE);
     ptr_fake_heap = NULL;
+}
+
+void
+test_expand_blk() {
+    void        *blk        = NULL;
+    void        *next_blk   = NULL;
+    t_free_list *head       = NULL;
+    const size_t xpand_size = DWORD_SIZE;
+
+    PUT_WORD(ptr_fake_heap, 0xDEADBEEF);
+    blk = ptr_fake_heap + (2 * WORD_SIZE);
+
+    PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+    PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+
+    next_blk = NEXT_BLK(blk);
+    head     = FREE_LIST_ELEM(next_blk);
+
+    PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE + xpand_size, FREE));
+    PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE + xpand_size, FREE));
+
+    blk      = expand_blk(&head, blk, xpand_size);
+    next_blk = NEXT_BLK(blk);
+
+    TEST_ASSERT_EQUAL(MIN_BLK_SIZE + xpand_size, GET_SIZE(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL(MIN_BLK_SIZE, GET_SIZE(GET_HDR(next_blk)));
+    TEST_ASSERT_EQUAL_PTR(FREE_LIST_ELEM(next_blk), head);
+    TEST_ASSERT_TRUE((uintptr_t)next_blk % DWORD_SIZE == 0);
 }
 
 // void
@@ -267,7 +295,7 @@ int
 main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(test_place_block_INSIDE_LARGE_FREE);
+    RUN_TEST(test_expand_blk);
 
     return UNITY_END();
 }
