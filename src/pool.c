@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 17:24:58 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 18:26:42 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,10 +124,6 @@ int
 init_pool(t_pool *pool) {
     t_byte *heap = NULL;
 
-    if (init_heap(&pool->heap, (MIN_ALLOC_PER_POOL * pool->max_alloc_size) + 4 * WORD_SIZE) == (void *)-1) {
-        return (-1);
-    }
-
     heap = sbrk_heap(&pool->heap, 4 * WORD_SIZE);
     if (heap == (void *)-1) {
         return (-1);
@@ -136,7 +132,7 @@ init_pool(t_pool *pool) {
     PUT_WORD(heap + (1 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
     PUT_WORD(heap + (2 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
     PUT_WORD(heap + (3 * WORD_SIZE), PACK(0, ALLOCATED));
-    if (extend_pool(pool, (1 << 12) / WORD_SIZE) == NULL) {
+    if (extend_pool(pool, POOL_CHUNK_EXTENSION / WORD_SIZE) == NULL) {
         return (-1);
     }
     pool->beginning = NEXT_BLK(heap + (2 * WORD_SIZE));
