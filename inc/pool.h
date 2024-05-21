@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:34:20 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 17:24:37 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,9 @@ typedef struct s_pool {
 } t_pool;
 
 int     init_pool(t_pool *pool);
-void   *find_fit_pool(const t_pool *pool, const size_t size);
-t_pool *find_blk_pool(t_pool *pools, size_t n, void *blk);
+void   *find_fit_in_pool(t_pool *pool, const size_t size);
+t_pool *find_blk_in_pools(t_pool *pools, size_t n, void *blk);
+void   *find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_pool);
 void    print_pool(const t_pool *pool, bool show_free_blks);
 void    print_pretty_pool(const t_pool *pool, bool show_free_blks);
 

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:34:53 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 17:15:18 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,19 +60,16 @@ init_malloc() {
 }
 
 static void *
-find_fit_in_pools(const size_t adj_size, t_pool **pool) {
-    size_t i   = 0;
-    void  *blk = NULL;
+new_malloc_n_cpy(void *old_ptr, size_t old_size, size_t new_size) {
+    void *new_ptr = NULL;
 
-    while (i < N_POOLS) {
-        *pool = &g_pools[i];
-        if (adj_size >= (*pool)->min_alloc_size && adj_size <= (*pool)->max_alloc_size) {
-            blk = find_fit_pool(*pool, adj_size);
-            break;
-        }
-        i++;
+    new_ptr = my_malloc(new_size);
+    if (new_ptr == NULL) {
+        return (NULL);
     }
-    return (blk);
+    memcpy(new_ptr, old_ptr, old_size);
+    my_free(old_ptr);
+    return (new_ptr);
 }
 
 void *
@@ -84,7 +81,7 @@ my_malloc(size_t size) {
     if (init_malloc() == -1 || size == 0) {
         return (NULL);
     }
-    if ((blk = find_fit_in_pools(adj_size, &blk_pool)) == NULL) {
+    if ((blk = find_fit_in_pools(g_pools, N_POOLS, adj_size, &blk_pool)) == NULL) {
         return (NULL);
     }
     place_blk(&blk_pool->head, blk, adj_size);
@@ -96,7 +93,6 @@ my_realloc(void *ptr, size_t size) {
     size_t  blk_size = GET_SIZE(GET_HDR(ptr));
     size_t  adj_size = ADJ_ALLOC_SIZE(size);
     t_pool *blk_pool = NULL;
-    void   *rslt     = NULL;
 
     if (ptr == NULL) {
         return (my_malloc(size));
@@ -105,24 +101,19 @@ my_realloc(void *ptr, size_t size) {
         my_free(ptr);
         return (NULL);
     }
-    if ((blk_pool = find_blk_pool(g_pools, N_POOLS, ptr)) == NULL) {
+    if ((blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr)) == NULL) {
         return (NULL);
     }
     if (adj_size < blk_size) {
-        if ((rslt = shrink_blk(&blk_pool->head, ptr, blk_size - adj_size)) == NULL) {
+        if (shrink_blk(&blk_pool->head, ptr, blk_size - adj_size) == NULL) {
             return (ptr);
         }
     } else if (adj_size > blk_size) {
-        if ((rslt = expand_blk(&blk_pool->head, ptr, adj_size - blk_size)) != NULL) {
-            return (rslt);
+        if (expand_blk(&blk_pool->head, ptr, adj_size - blk_size) == NULL) {
+            return (new_malloc_n_cpy(ptr, blk_size, adj_size - blk_size));
         }
-        if ((rslt = my_malloc(adj_size)) == NULL) {
-            return (rslt);
-        }
-        memcpy(rslt, ptr, GET_PLD_SIZE(ptr));
-        my_free(ptr);
     }
-    return (rslt);
+    return (ptr);
 }
 
 void
@@ -132,7 +123,7 @@ my_free(void *ptr) {
     if (ptr == NULL) {
         return;
     }
-    if ((blk_pool = find_blk_pool(g_pools, N_POOLS, ptr)) == NULL) {
+    if ((blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr)) == NULL) {
         return;
     }
     PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:34:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 17:24:58 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
  * @return void* A pointer to the free block that can fit the adjusted size.
  */
 void *
-find_fit_pool(const t_pool *pool, const size_t adj_size) {
+find_fit_in_pool(t_pool *pool, const size_t adj_size) {
     t_free_list *blk = pool->head;
 
     while (blk != NULL) {
@@ -50,7 +50,7 @@ find_fit_pool(const t_pool *pool, const size_t adj_size) {
  * @return t_pool* The pool that contains the block blk.
  */
 t_pool *
-find_blk_pool(t_pool *pools, size_t n, void *blk) {
+find_blk_in_pools(t_pool *pools, size_t n, void *blk) {
     size_t blk_size = GET_SIZE(GET_HDR(blk));
     size_t i        = 0;
 
@@ -61,6 +61,31 @@ find_blk_pool(t_pool *pools, size_t n, void *blk) {
         i++;
     }
     return (NULL);
+}
+
+/**
+ * @brief
+ *
+ * @param pools
+ * @param n
+ * @param adj_size
+ * @param blk_pool
+ * @return void*
+ */
+void *
+find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_pool) {
+    size_t i   = 0;
+    void  *blk = NULL;
+
+    while (i < n) {
+        *blk_pool = &pools[i];
+        if (adj_size >= (*blk_pool)->min_alloc_size && adj_size <= (*blk_pool)->max_alloc_size) {
+            blk = find_fit_in_pool(*blk_pool, adj_size);
+            break;
+        }
+        i++;
+    }
+    return (blk);
 }
 
 /**
