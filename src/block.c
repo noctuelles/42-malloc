@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/20 17:59:59 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 10:34:14 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,51 +19,6 @@
 #include <unistd.h>
 
 #include "utils.h"
-
-void
-push_front_free_list(t_free_list **head, t_free_list *free_blk) {
-    if (*head == NULL) {
-        free_blk->next = NULL;
-    } else {
-        (*head)->prev  = free_blk;
-        free_blk->next = *head;
-    }
-    free_blk->prev = NULL;
-    *head          = free_blk;
-}
-
-void
-delone_free_list(t_free_list **head, t_free_list *free_blk) {
-    if (*head == free_blk) {
-        *head = free_blk->next;
-
-        if (*head) {
-            (*head)->prev = NULL;
-        }
-    } else {
-        free_blk->prev->next = free_blk->next;
-
-        if (free_blk->next) {
-            free_blk->next->prev = free_blk->prev;
-        }
-    }
-}
-
-void
-move_free_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk) {
-    free_blk->prev = old_free_blk->prev;
-    free_blk->next = old_free_blk->next;
-
-    if (old_free_blk->prev != NULL) {
-        old_free_blk->prev->next = free_blk;
-    }
-    if (old_free_blk->next != NULL) {
-        old_free_blk->next->prev = free_blk;
-    }
-    if (old_free_blk == *head) {
-        *head = free_blk;
-    }
-}
 
 /**
  * @brief Tries to expand the block blk by xpnd_size bytes by using the next adjacent free block.
@@ -103,6 +58,35 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
             return (blk);
         }
     }
+    return (NULL);
+}
+
+/**
+ * @brief Try to shrink the block blk by shrk_size bytes. If the shrinking is not worth it, the block is left untouched.
+ *
+ * @param head head of the free list of the pool of blk.
+ * @param blk block to be shrunk.
+ * @param shrk_size double word aligned shrink size.
+ * @return void* NULL if blk cannot be shrunk, blk otherwise.
+ */
+void *
+shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
+    size_t blk_size     = GET_SIZE(GET_HDR(blk));
+    size_t new_blk_size = blk_size - shrk_size;
+    void  *next_blk     = NULL;
+
+    assert(shrk_size % 8 == 0);
+    (void)head;
+
+    if (new_blk_size >= MIN_BLK_SIZE) {
+        PUT_WORD(GET_HDR(blk), PACK(new_blk_size, ALLOCATED));
+        PUT_WORD(GET_FTR(blk), PACK(new_blk_size, ALLOCATED));
+
+        next_blk = NEXT_BLK(blk);
+
+        PUT_WORD(GET_HDR(next_blk), PACK(shrk_size, FREE));
+    }
+
     return (NULL);
 }
 

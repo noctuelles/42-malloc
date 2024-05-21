@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/19 21:02:11 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/21 10:34:01 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,6 +33,7 @@ SRC=block.c \
     heap.c \
 	malloc.c \
 	hexdump.c \
+	free_list.c \
 	heap.c \
 	utils.c \
 	pool.c
