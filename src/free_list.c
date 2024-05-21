@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 18:26:38 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 10:33:23 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 12:20:01 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ delone_free_list(t_free_list **head, t_free_list *free_blk) {
  * @param old_free_blk The free block to move the values from.
  */
 void
-move_free_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk) {
+move_free_list_ptr(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk) {
     free_blk->prev = old_free_blk->prev;
     free_blk->next = old_free_blk->next;
 
@@ -76,4 +76,21 @@ move_free_list_values(t_free_list **head, t_free_list *free_blk, t_free_list *ol
     if (old_free_blk == *head) {
         *head = free_blk;
     }
+}
+
+/**
+ * @brief Get the length of a free list.
+ *
+ * @param head The head of the free list.
+ * @return size_t The length of the free list.
+ */
+size_t
+free_list_len(t_free_list *head) {
+    size_t len = 0;
+
+    while (head != NULL) {
+        len++;
+        head = head->next;
+    }
+    return (len);
 }

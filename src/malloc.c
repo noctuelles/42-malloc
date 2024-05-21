@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/20 17:15:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 12:26:28 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,10 +107,11 @@ my_malloc(size_t size) {
 }
 
 void *
-realloc(void *ptr, size_t size) {
-    t_pool *blk_pool     = NULL;
+my_realloc(void *ptr, size_t size) {
     size_t  blk_size     = GET_SIZE(GET_HDR(ptr));
     size_t  aligned_size = align_on_dword_boundary(size);
+    t_pool *blk_pool     = NULL;
+    void   *rslt         = NULL;
 
     if (ptr == NULL) {
         return (my_malloc(size));
@@ -119,16 +120,24 @@ realloc(void *ptr, size_t size) {
         my_free(ptr);
         return (NULL);
     }
+    if ((blk_pool = find_blk_pool(ptr)) == NULL) {
+        return (NULL);
+    }
     if (aligned_size < blk_size) {
-        my_free(ptr);
-        return (my_malloc(size));
-    }
-    if (aligned_size > blk_size) {
-        if ((blk_pool = find_blk_pool(ptr)) == NULL) {
-            return (NULL);
+        if ((rslt = shrink_blk(&blk_pool->head, ptr, aligned_size)) == NULL) {
+            return (ptr);
         }
+    } else if (aligned_size > blk_size) {
+        if ((rslt = expand_blk(&blk_pool->head, ptr, aligned_size)) != NULL) {
+            return (rslt);
+        }
+        if ((rslt = my_malloc(aligned_size)) == NULL) {
+            return (rslt);
+        }
+        memcpy(rslt, ptr, GET_PLD_SIZE(ptr));
+        my_free(ptr);
     }
-    return (NULL);
+    return (rslt);
 }
 
 void

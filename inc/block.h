@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 10:31:00 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 11:14:01 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,11 +114,15 @@ High addr   +--------------+
  */
 #define PREV_BLK(payload_ptr) ((t_byte *)(payload_ptr) - GET_SIZE(((t_byte *)(payload_ptr) - DWORD_SIZE)))
 
+#define GET_PLD_SIZE(blk) ((ptrdiff_t)(GET_FTR(blk) - (t_byte *)(blk)))
+
 #define FREE_LIST_ELEM(blk_ptr) ((t_free_list *)(blk_ptr))
 
 void *new_anonymous_blk(size_t size);
 
 void *expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
+void *shrink_blk(t_free_list **head, void *blk, size_t shrk_size);
+
 void *coalesce_blk(t_free_list **head, void *blk);
 void  place_blk(t_free_list **head, void *blk, const size_t adj_size);
 
