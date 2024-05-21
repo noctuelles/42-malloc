@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:28:13 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 14:34:07 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,13 @@
 #include "inc/malloc.h"
 #include "malloc.h"
 
+/**
+ * @brief Find a free block in the pool that can fit the adjusted size.
+ *
+ * @param pool The pool to search in.
+ * @param adj_size The adjusted size to fit.
+ * @return void* A pointer to the free block that can fit the adjusted size.
+ */
 void *
 find_fit_pool(const t_pool *pool, const size_t adj_size) {
     t_free_list *blk = pool->head;
@@ -30,6 +37,28 @@ find_fit_pool(const t_pool *pool, const size_t adj_size) {
             return (blk);
         }
         blk = blk->next;
+    }
+    return (NULL);
+}
+
+/**
+ * @brief Find the pool that contains the block blk.
+ *
+ * @param pools Array of pools.
+ * @param n Number of pools.
+ * @param blk Block to find.
+ * @return t_pool* The pool that contains the block blk.
+ */
+t_pool *
+find_blk_pool(t_pool *pools, size_t n, void *blk) {
+    size_t blk_size = GET_SIZE(GET_HDR(blk));
+    size_t i        = 0;
+
+    while (i < n) {
+        if (blk_size >= pools[i].min_alloc_size && blk_size <= pools[i].max_alloc_size) {
+            return (&pools[i]);
+        }
+        i++;
     }
     return (NULL);
 }

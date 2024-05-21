@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:25:27 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 14:35:54 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,49 +60,6 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
         }
     }
     return (NULL);
-}
-
-static void
-print_hdr_ftr(void *hdr) {
-    printf("+-----------------------+\n");
-    printf("|%3s%#010x%3s|    %c%c|\n", "", GET_SIZE(hdr), "", GET_ANONYMOUS(hdr) ? 'A' : 'N',
-           GET_ALLOC(hdr) ? 'A' : 'F');
-    printf("+-----------------------+\n");
-}
-
-static void
-print_body(void *blk) {
-    size_t  blk_size = GET_SIZE(GET_HDR(blk)) - 2 * WORD_SIZE;
-    t_byte *pld_mem  = blk;
-    size_t  i        = 0;
-    size_t  j        = 0;
-
-    if (GET_ALLOC(GET_HDR(blk)) == FREE) {
-        printf("|prev : %16p|\n", FREE_LIST_ELEM(blk)->prev);
-        printf("|next : %16p|\n", FREE_LIST_ELEM(blk)->next);
-        blk_size -= 2 * DWORD_SIZE;
-        pld_mem += 2 * DWORD_SIZE;
-    }
-
-    while (i < blk_size) {
-        putchar('|');
-        j = 0;
-        while (j < DWORD_SIZE) {
-            printf("%02x", pld_mem[i + j]);
-            if (j != DWORD_SIZE - 1) {
-                putchar(' ');
-            }
-            j++;
-        }
-        printf("|\n");
-        i += DWORD_SIZE;
-    }
-}
-void
-print_blk(void *blk) {
-    print_hdr_ftr(GET_HDR(blk));
-    print_body(blk);
-    print_hdr_ftr(GET_FTR(blk));
 }
 
 /**
@@ -236,4 +193,52 @@ new_anonymous_blk(size_t size) {
     PUT_WORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), PACK(0, ALLOCATED | ANONYMOUS));
 
     return (blk + (2 * WORD_SIZE + 1 * DWORD_SIZE));
+}
+
+static void
+print_hdr_ftr(void *hdr) {
+    printf("+-----------------------+\n");
+    printf("|%3s%#010x%3s|    %c%c|\n", "", GET_SIZE(hdr), "", GET_ANONYMOUS(hdr) ? 'A' : 'N',
+           GET_ALLOC(hdr) ? 'A' : 'F');
+    printf("+-----------------------+\n");
+}
+
+static void
+print_body(void *blk) {
+    size_t  blk_size = GET_SIZE(GET_HDR(blk)) - 2 * WORD_SIZE;
+    t_byte *pld_mem  = blk;
+    size_t  i        = 0;
+    size_t  j        = 0;
+
+    if (GET_ALLOC(GET_HDR(blk)) == FREE) {
+        printf("|prev : %16p|\n", FREE_LIST_ELEM(blk)->prev);
+        printf("|next : %16p|\n", FREE_LIST_ELEM(blk)->next);
+        blk_size -= 2 * DWORD_SIZE;
+        pld_mem += 2 * DWORD_SIZE;
+    }
+
+    while (i < blk_size) {
+        putchar('|');
+        j = 0;
+        while (j < DWORD_SIZE) {
+            printf("%02x", pld_mem[i + j]);
+            if (j != DWORD_SIZE - 1) {
+                putchar(' ');
+            }
+            j++;
+        }
+        printf("|\n");
+        i += DWORD_SIZE;
+    }
+}
+/**
+ * @brief Print the block information.
+ *
+ * @param blk block to be printed.
+ */
+void
+print_blk(void *blk) {
+    print_hdr_ftr(GET_HDR(blk));
+    print_body(blk);
+    print_hdr_ftr(GET_FTR(blk));
 }

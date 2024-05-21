@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 13:10:21 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 14:34:53 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,20 +75,6 @@ find_fit_in_pools(const size_t adj_size, t_pool **pool) {
     return (blk);
 }
 
-static t_pool *
-find_blk_pool(void *blk) {
-    size_t blk_size = GET_SIZE(GET_HDR(blk));
-    size_t i        = 0;
-
-    while (i < N_POOLS) {
-        if (blk_size >= g_pools[i].min_alloc_size && blk_size <= g_pools[i].max_alloc_size) {
-            return (&g_pools[i]);
-        }
-        i++;
-    }
-    return (NULL);
-}
-
 void *
 my_malloc(size_t size) {
     size_t  adj_size = ADJ_ALLOC_SIZE(size);
@@ -102,7 +88,6 @@ my_malloc(size_t size) {
         return (NULL);
     }
     place_blk(&blk_pool->head, blk, adj_size);
-    print_pool(blk_pool, true);
     return (blk);
 }
 
@@ -120,27 +105,23 @@ my_realloc(void *ptr, size_t size) {
         my_free(ptr);
         return (NULL);
     }
-    if ((blk_pool = find_blk_pool(ptr)) == NULL) {
+    if ((blk_pool = find_blk_pool(g_pools, N_POOLS, ptr)) == NULL) {
         return (NULL);
     }
     if (adj_size < blk_size) {
         if ((rslt = shrink_blk(&blk_pool->head, ptr, blk_size - adj_size)) == NULL) {
-            print_pool(blk_pool, true);
             return (ptr);
         }
     } else if (adj_size > blk_size) {
         if ((rslt = expand_blk(&blk_pool->head, ptr, adj_size - blk_size)) != NULL) {
-            print_pool(blk_pool, true);
             return (rslt);
         }
         if ((rslt = my_malloc(adj_size)) == NULL) {
-            print_pool(blk_pool, true);
             return (rslt);
         }
         memcpy(rslt, ptr, GET_PLD_SIZE(ptr));
         my_free(ptr);
     }
-    print_pool(blk_pool, true);
     return (rslt);
 }
 
@@ -151,11 +132,10 @@ my_free(void *ptr) {
     if (ptr == NULL) {
         return;
     }
-    if ((blk_pool = find_blk_pool(ptr)) == NULL) {
+    if ((blk_pool = find_blk_pool(g_pools, N_POOLS, ptr)) == NULL) {
         return;
     }
     PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
     PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
     coalesce_blk(&blk_pool->head, ptr);
-    print_pool(blk_pool, true);
 }
