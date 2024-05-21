@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 21:05:05 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 14:28:13 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,15 +99,31 @@ print_pool(const t_pool *pool, bool show_free_blks) {
         if (GET_ALLOC(GET_HDR(blk)) == FREE && show_free_blks) {
             free_blk = FREE_LIST_ELEM(blk);
             if (blk == pool->head) {
-                printf("Free Block %p : %u bytes [HEAD]\n", blk, GET_SIZE(GET_HDR(blk)));
+                printf("\tFree Block %p : %u bytes [HEAD].\n", blk, GET_SIZE(GET_HDR(blk)));
             } else {
-                printf("Free Block %p : %u bytes\n", blk, GET_SIZE(GET_HDR(blk)));
+                printf("\tFree Block %p : %u bytes.\n", blk, GET_SIZE(GET_HDR(blk)));
             }
-            printf("\t- prev : %p\n", free_blk->prev);
-            printf("\t- next : %p\n", free_blk->next);
+            printf("\t\t- prev : %p\n", free_blk->prev);
+            printf("\t\t- next : %p\n", free_blk->next);
         } else {
-            printf("Allocated Block %p : %u bytes\n", blk, GET_SIZE(GET_HDR(blk)));
+            printf("\tAllocated Block %p : %u bytes, %lu usable.\n", blk, GET_SIZE(GET_HDR(blk)), GET_PLD_SIZE(blk));
         }
+        blk = NEXT_BLK(blk);
+    }
+    fflush(stdout);
+}
+
+void
+print_pretty_pool(const t_pool *pool, bool show_free_blks) {
+    void *blk = pool->beginning;
+
+    printf("## Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
+    while (GET_SIZE(GET_HDR(blk)) != 0) {
+        if (GET_ALLOC(GET_HDR(blk)) == FREE && !show_free_blks) {
+            goto next;
+        }
+        print_blk(blk);
+    next:
         blk = NEXT_BLK(blk);
     }
     fflush(stdout);

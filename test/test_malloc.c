@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 21:07:31 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 13:20:32 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,19 +32,13 @@ test_ADJ_ALLOC_SIZE() {
 
 void
 test_malloc() {
-    void *first_malloc = my_malloc(12);
-    void *sncd_malloc  = my_malloc(31);
-    void *thrd_malloc  = my_malloc(57);
-    void *frth_malloc  = my_malloc(128);
-    void *ffth_malloc  = my_malloc(256);
-    void *sxth_malloc  = my_malloc(512);
+    void *first_malloc  = my_malloc(12);
+    void *second_malloc = my_malloc(34);
+    void *third_malloc  = my_malloc(56);
 
-    my_free(first_malloc);
-    my_free(frth_malloc);
-    my_free(thrd_malloc);
-
-    my_free(ffth_malloc);
-    my_free(sxth_malloc);
+    my_realloc(first_malloc, 102);
+    puts("Reallocating second malloc");
+    my_realloc(second_malloc, 102);
 }
 
 int

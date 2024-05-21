@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 12:26:28 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 13:10:21 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,35 +108,39 @@ my_malloc(size_t size) {
 
 void *
 my_realloc(void *ptr, size_t size) {
-    size_t  blk_size     = GET_SIZE(GET_HDR(ptr));
-    size_t  aligned_size = align_on_dword_boundary(size);
-    t_pool *blk_pool     = NULL;
-    void   *rslt         = NULL;
+    size_t  blk_size = GET_SIZE(GET_HDR(ptr));
+    size_t  adj_size = ADJ_ALLOC_SIZE(size);
+    t_pool *blk_pool = NULL;
+    void   *rslt     = NULL;
 
     if (ptr == NULL) {
         return (my_malloc(size));
     }
-    if (aligned_size == 0) {
+    if (adj_size == 0) {
         my_free(ptr);
         return (NULL);
     }
     if ((blk_pool = find_blk_pool(ptr)) == NULL) {
         return (NULL);
     }
-    if (aligned_size < blk_size) {
-        if ((rslt = shrink_blk(&blk_pool->head, ptr, aligned_size)) == NULL) {
+    if (adj_size < blk_size) {
+        if ((rslt = shrink_blk(&blk_pool->head, ptr, blk_size - adj_size)) == NULL) {
+            print_pool(blk_pool, true);
             return (ptr);
         }
-    } else if (aligned_size > blk_size) {
-        if ((rslt = expand_blk(&blk_pool->head, ptr, aligned_size)) != NULL) {
+    } else if (adj_size > blk_size) {
+        if ((rslt = expand_blk(&blk_pool->head, ptr, adj_size - blk_size)) != NULL) {
+            print_pool(blk_pool, true);
             return (rslt);
         }
-        if ((rslt = my_malloc(aligned_size)) == NULL) {
+        if ((rslt = my_malloc(adj_size)) == NULL) {
+            print_pool(blk_pool, true);
             return (rslt);
         }
         memcpy(rslt, ptr, GET_PLD_SIZE(ptr));
         my_free(ptr);
     }
+    print_pool(blk_pool, true);
     return (rslt);
 }
 

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 12:44:52 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 14:15:02 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,16 @@ test_shrink_blk_SHRINK_TOO_MUCH() {
 
     TEST_ASSERT_EQUAL_PTR(NULL, shrink_blk(&head, blk, 0));
     TEST_ASSERT_EQUAL_PTR(NULL, shrink_blk(&head, blk, 8));
+}
+
+void
+test_print_blk() {
+    PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, FREE));
+    PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, FREE));
+
+    PUT_WORD((t_byte *)blk + 2 * DWORD_SIZE, 0xDEADBEEF);
+
+    print_blk(blk);
 }
 
 // void
@@ -420,6 +430,8 @@ main(void) {
     RUN_TEST(test_shrink_blk_SHRINK_TOO_SMALL);
     RUN_TEST(test_shrink_blk_SHRINK_TOO_MUCH);
     RUN_TEST(test_shrink_blk_WITH_COALESCING);
+
+    RUN_TEST(test_print_blk);
 
     return UNITY_END();
 }
