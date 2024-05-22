@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 20:38:56 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 18:23:47 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/21 20:55:29 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ init_heap(t_heap *heap) {
  */
 static void *
 extend_heap(t_heap *heap, size_t extend_size) {
-    int   flags                 = MAP_PRV_ANON;
-    void *max_reserved_va_space = heap->base + RESERVE_SIZE;
+    int      flags                 = MAP_PRV_ANON;
+    uint8_t *max_reserved_va_space = heap->base + RESERVE_SIZE;
 
     extend_size = align_on_page_size_boundary(extend_size);
     if (heap->max_addr + extend_size > max_reserved_va_space) {
