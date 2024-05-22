@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:35:54 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 14:18:09 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
     assert(blk_size >= adj_size);
     assert(GET_ALLOC(GET_HDR(blk)) == FREE);
 
-    if ((blk_size - adj_size) > (4 * DWORD_SIZE)) {
+    if ((blk_size - adj_size) >= MIN_BLK_SIZE) {
         PUT_WORD(GET_HDR(blk), PACK(adj_size, ALLOCATED));
         PUT_WORD(GET_FTR(blk), PACK(adj_size, ALLOCATED));
 
@@ -161,15 +161,11 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
         PUT_WORD(GET_FTR(blk), PACK(blk_size - adj_size, FREE));
 
         move_free_list_ptr(head, blk, old_free_blk);
-#ifndef NDEBUG
-        bzero(old_free_blk, sizeof(t_free_list));
-#endif
     } else {
         PUT_WORD(GET_HDR(blk), PACK(adj_size, ALLOCATED));
         PUT_WORD(GET_FTR(blk), PACK(adj_size, ALLOCATED));
-#ifndef NDEBUG
-        bzero(blk, sizeof(t_free_list));
-#endif
+
+        delone_free_list(head, blk);
     }
 }
 

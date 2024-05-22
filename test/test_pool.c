@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:38:30 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/19 11:20:30 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 13:41:24 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,16 @@ tearDown() {}
 //     TEST_ASSERT_EQUAL_UINT64(page_size, POOL_ADJUSTED_SIZE(2));
 // }
 
+void
+test_init_pool() {
+    t_pool pool = {0};
+
+    init_pool(&pool);
+}
+
 int
 main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_init_pool);
     return UNITY_END();
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 13:28:03 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 15:02:47 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,11 @@ High addr   +--------------+
 #define ALLOCATED 1U
 #define ANONYMOUS (1U << 1)
 #define FREE 0U
+
+#define BLK_PAD_SIZE (2 * WORD_SIZE)
+#define BLK_HDR_FTR_SIZE (2 * WORD_SIZE)
+#define BLK_FREE_LIST_ELEM_SIZE (2 * DWORD_SIZE)
+
 #define MIN_BLK_SIZE (4 * DWORD_SIZE)
 
 #define GET_WORD(ptr) (*(t_word *)(ptr))
@@ -85,10 +90,10 @@ High addr   +--------------+
 #define PUT_WORD(ptr, val) (*(t_word *)(ptr) = (val))
 #define PUT_DWORD(ptr, val) (*(t_dword *)(ptr) = (val))
 
-/* The first 3 LSB are unused : the block size must be a multiple of 8 bytes
-   (for aligment). The size is thus encoded in the remaining 29 bits.
+/* The first 4 LSB are unused : the block size must be a multiple of 16 bytes
+   (for aligment). The size is thus encoded in the remaining 28 bits.
  */
-#define GET_SIZE(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ~0b111)
+#define GET_SIZE(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ~0b1111)
 #define GET_ALLOC(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ALLOCATED)
 #define GET_ANONYMOUS(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ANONYMOUS)
 #define GET_PAYLOAD_SIZE(hdr_or_ftr) (GET_SIZE(hdr_or_ftr) - (2 * WORD_SIZE))

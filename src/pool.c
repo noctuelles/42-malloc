@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 18:26:42 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 13:48:28 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,27 +88,13 @@ find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_p
     return (blk);
 }
 
-/**
- * @brief Given a maximum allocation size, return the size of pool that is page size aligned.
- *
- * @param max_alloc_size
- * @return size_t
- */
-size_t
-get_adj_pool_size(size_t max_alloc_size) {
-    const size_t page_size = (size_t)getpagesize();
-    const size_t pool_size = MIN_ALLOC_PER_POOL * ADJ_ALLOC_SIZE(max_alloc_size) + (4 * WORD_SIZE);
-
-    return (page_size * ((pool_size + page_size) / page_size));
-}
-
 void *
 extend_pool(t_pool *pool, size_t words) {
     t_byte *heap_brk = NULL;
     void   *free_blk = NULL;
     size_t  bytes    = 0;
 
-    bytes    = (words % 2) ? (words + 1) * WORD_SIZE : words * WORD_SIZE;
+    bytes    = (words % 4) ? (words + 4 - (words % 4)) * WORD_SIZE : words * WORD_SIZE;
     heap_brk = sbrk_heap(&pool->heap, bytes);
     if (heap_brk == (void *)-1) {
         return (NULL);
@@ -124,18 +110,25 @@ int
 init_pool(t_pool *pool) {
     t_byte *heap = NULL;
 
-    heap = sbrk_heap(&pool->heap, 4 * WORD_SIZE);
+    heap = sbrk_heap(&pool->heap, 8 * WORD_SIZE);
     if (heap == (void *)-1) {
         return (-1);
     }
-    PUT_WORD(heap, 0U);
-    PUT_WORD(heap + (1 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
-    PUT_WORD(heap + (2 * WORD_SIZE), PACK(DWORD_SIZE, ALLOCATED));
-    PUT_WORD(heap + (3 * WORD_SIZE), PACK(0, ALLOCATED));
+    /* Padding */
+    PUT_WORD(heap + (0 * WORD_SIZE), 0x00000000U);
+    PUT_WORD(heap + (1 * WORD_SIZE), 0x00000000U);
+    PUT_WORD(heap + (2 * WORD_SIZE), 0x00000000U);
+    /* Prologue */
+    PUT_WORD(heap + (3 * WORD_SIZE), PACK(4 * WORD_SIZE, ALLOCATED));
+    PUT_WORD(heap + (4 * WORD_SIZE), 0x00000000U);
+    PUT_WORD(heap + (5 * WORD_SIZE), 0x00000000U);
+    PUT_WORD(heap + (6 * WORD_SIZE), PACK(4 * WORD_SIZE, ALLOCATED));
+    /* Epilogue */
+    PUT_WORD(heap + (7 * WORD_SIZE), PACK(0, ALLOCATED));
     if (extend_pool(pool, POOL_CHUNK_EXTENSION / WORD_SIZE) == NULL) {
         return (-1);
     }
-    pool->beginning = NEXT_BLK(heap + (2 * WORD_SIZE));
+    pool->beginning = NEXT_BLK(heap + (4 * WORD_SIZE));
     return (0);
 }
 

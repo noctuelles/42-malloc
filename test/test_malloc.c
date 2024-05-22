@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 13:20:32 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 14:25:27 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,12 @@ test_malloc() {
     void *first_malloc  = my_malloc(12);
     void *second_malloc = my_malloc(34);
     void *third_malloc  = my_malloc(56);
+    void *fourth_malloc = my_malloc(78);
 
-    my_realloc(first_malloc, 102);
-    puts("Reallocating second malloc");
-    my_realloc(second_malloc, 102);
+    my_free(first_malloc);
+    my_free(third_malloc);
+    my_free(second_malloc);
+    my_malloc(12);
 }
 
 int
