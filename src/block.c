@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 14:18:09 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 15:35:55 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,8 @@ coalesce_blk(t_free_list **head, void *blk) {
 
         PUT_WORD(GET_HDR(prev_blk), PACK(curr_blk_size, FREE));
         PUT_WORD(GET_FTR(blk), PACK(curr_blk_size, FREE));
+
+        blk = prev_blk;
     } else if (!prev_blk_alloc && !next_blk_alloc) {
         curr_blk_size += GET_SIZE(GET_HDR(prev_blk)) + GET_SIZE(GET_HDR(next_blk));
 

@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/21 10:34:01 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/22 15:46:08 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -75,7 +75,7 @@ $(info $(INCS))
 all: $(NAME)
 
 $(NAME): $(PROJECT_OBJS)
-	$(LINK) -shared -rdynamic -o $@ $^
+	$(LINK) -shared -fPIC -o $@ $^
 
 test: $(TEST_RESULTS_PATH) $(TEST_RESULTS)
 	@echo "-----------------------\n\tIGNORED ⭕\n-----------------------"
@@ -94,7 +94,7 @@ $(BUILD_PATH)/test_%.$(TARGET_EXTENSION): $(OBJS_PATH)/test_%.o $(OBJS_PATH)/uni
 
 # Rule to compile the files of the project
 $(OBJS_PATH)/%.o:: $(SRC_PATH)/%.c | $(OBJS_PATH)
-	$(CC) $(CFLAGS) $(DEBUG) $(PROJECT_INC) -c $< -o $@
+	$(CC) -fPIC $(CFLAGS) $(DEBUG) $(PROJECT_INC) -c $< -o $@
 
 # Rule to compile the Unity Framework
 $(OBJS_PATH)/%.o:: $(UNITY_PATH)/%.c $(UNITY_PATH)/%.h | $(OBJS_PATH)

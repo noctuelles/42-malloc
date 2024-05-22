@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 17:15:18 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 15:53:34 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ new_malloc_n_cpy(void *old_ptr, size_t old_size, size_t new_size) {
 void *
 my_malloc(size_t size) {
     size_t  adj_size = ADJ_ALLOC_SIZE(size);
+    size_t  ext_size = 0;
     t_pool *blk_pool = NULL;
     void   *blk      = NULL;
 
@@ -82,7 +83,10 @@ my_malloc(size_t size) {
         return (NULL);
     }
     if ((blk = find_fit_in_pools(g_pools, N_POOLS, adj_size, &blk_pool)) == NULL) {
-        return (NULL);
+        ext_size = MAX(adj_size, POOL_CHUNK_EXTENSION);
+        if ((blk = extend_pool(blk_pool, ext_size / WORD_SIZE)) == (void *)-1) {
+            return (NULL);
+        }
     }
     place_blk(&blk_pool->head, blk, adj_size);
     return (blk);
