@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 15:54:21 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 16:23:52 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,10 @@ test_ADJ_ALLOC_SIZE() {
 }
 
 void
-test_malloc() {}
+test_malloc() {
+    void *big_malloc = malloc(199999999);
+    free(big_malloc);
+}
 
 int
 main(void) {

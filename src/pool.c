@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 15:24:47 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 15:56:51 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,18 +74,17 @@ find_blk_in_pools(t_pool *pools, size_t n, void *blk) {
  */
 void *
 find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_pool) {
-    size_t i   = 0;
-    void  *blk = NULL;
+    size_t i = 0;
 
     while (i < n) {
         *blk_pool = &pools[i];
         if (adj_size >= (*blk_pool)->min_alloc_size && adj_size <= (*blk_pool)->max_alloc_size) {
-            blk = find_fit_in_pool(*blk_pool, adj_size);
-            break;
+            return (find_fit_in_pool(*blk_pool, adj_size));
         }
         i++;
     }
-    return (blk);
+    *blk_pool = NULL;
+    return (NULL);
 }
 
 void *

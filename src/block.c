@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 15:35:55 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/22 17:07:13 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,8 +164,8 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
 
         move_free_list_ptr(head, blk, old_free_blk);
     } else {
-        PUT_WORD(GET_HDR(blk), PACK(adj_size, ALLOCATED));
-        PUT_WORD(GET_FTR(blk), PACK(adj_size, ALLOCATED));
+        PUT_WORD(GET_HDR(blk), PACK(blk_size, ALLOCATED));
+        PUT_WORD(GET_FTR(blk), PACK(blk_size, ALLOCATED));
 
         delone_free_list(head, blk);
     }
@@ -179,6 +179,7 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
  */
 void *
 new_anonymous_blk(size_t size) {
+    size        = size + 2 * DWORD_SIZE;
     size        = align_on_page_size_boundary(size);
     t_byte *blk = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 
@@ -186,11 +187,21 @@ new_anonymous_blk(size_t size) {
         return (NULL);
     }
 
-    PUT_WORD(blk, 0U);
+    /* Padding */
+    PUT_WORD(blk + (0 * WORD_SIZE), 0x00000000U);
+    /* Anonymous Block Size */
     PUT_DWORD(blk + (1 * WORD_SIZE), size);
+    /* Header */
     PUT_WORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), PACK(0, ALLOCATED | ANONYMOUS));
 
     return (blk + (2 * WORD_SIZE + 1 * DWORD_SIZE));
+}
+
+void
+free_anonymous_blk(void *blk) {
+    void *blk_header = GET_HDR(blk);
+
+    munmap(GET_ANON_BASE(blk_header), GET_ANON_SIZE(blk_header));
 }
 
 static void
