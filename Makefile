@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/23 17:23:48 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/23 17:37:53 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,6 @@ UNITY_PATH=unity/src
 SRC=block.c \
     heap.c \
 	malloc.c \
-	hexdump.c \
 	free_list.c \
 	heap.c \
 	tunable.c \
@@ -116,6 +115,8 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
+
+re: fclean all
 
 .PHONY: all  test clean fclean re
 .PRECIOUS: $(BUILD_PATH)/test_%.$(TARGET_EXTENSION)
