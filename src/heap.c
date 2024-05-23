@@ -6,18 +6,18 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 20:38:56 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 20:55:29 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 17:22:41 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "heap.h"
 
 #include <assert.h>
-#include <errno.h>
 #include <stdint.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include "tunable.h"
 #include "utils.h"
 
 /**
@@ -29,7 +29,7 @@
  */
 static void *
 init_heap(t_heap *heap) {
-    heap->base = mmap(NULL, RESERVE_SIZE, PROT_NONE, MAP_PRV_ANON, -1, 0);
+    heap->base = mmap(NULL, get_tunable(FT_HEAP_RESERVE_SIZE_STR, HEAP_RESERVE_SIZE), PROT_NONE, MAP_PRV_ANON, -1, 0);
     if (heap->base == MAP_FAILED) {
         return ((void *)-1);
     }
@@ -48,7 +48,7 @@ init_heap(t_heap *heap) {
 static void *
 extend_heap(t_heap *heap, size_t extend_size) {
     int      flags                 = MAP_PRV_ANON;
-    uint8_t *max_reserved_va_space = heap->base + RESERVE_SIZE;
+    uint8_t *max_reserved_va_space = heap->base + get_tunable(FT_HEAP_RESERVE_SIZE_STR, HEAP_RESERVE_SIZE);
 
     extend_size = align_on_page_size_boundary(extend_size);
     if (heap->max_addr + extend_size > max_reserved_va_space) {
@@ -57,7 +57,6 @@ extend_heap(t_heap *heap, size_t extend_size) {
         flags |= MAP_FIXED;
     }
     if (mmap(heap->max_addr, extend_size, PROT_RW, flags, -1, 0) == MAP_FAILED) {
-        errno = ENOMEM;
         return ((void *)-1);
     }
     heap->max_addr += extend_size;

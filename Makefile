@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/23 13:53:09 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/23 17:23:48 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,7 @@ SRC=block.c \
 	hexdump.c \
 	free_list.c \
 	heap.c \
+	tunable.c \
 	utils.c \
 	pool.c
 SRC_TEST=$(wildcard $(TEST_PATH)/*.c)

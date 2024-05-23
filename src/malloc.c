@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:57:13 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 17:29:45 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,19 +22,32 @@
 #include "block.h"
 #include "malloc_utils.h"
 #include "pool.h"
+#include "tunable.h"
 
 static t_pool g_pools[N_POOLS] = {{
-                                      .min_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MIN_ALLOC_SIZE),
-                                      .max_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MAX_ALLOC_SIZE),
+                                      .min_alloc_size = 0,
+                                      .max_alloc_size = 0,
                                       .head           = NULL,
                                       .heap           = {0},
                                   },
                                   {
-                                      .min_alloc_size = ADJ_ALLOC_SIZE(POOL_TWO_MIN_ALLOC_SIZE),
-                                      .max_alloc_size = ADJ_ALLOC_SIZE(POOL_TWO_MAX_ALLOC_SIZE),
+                                      .min_alloc_size = 0,
+                                      .max_alloc_size = 0,
                                       .head           = NULL,
                                       .heap           = {0},
                                   }};
+
+static void
+configure_pools_tunable() {
+    g_pools[0].min_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MIN_ALLOC_SIZE);
+    g_pools[0].max_alloc_size = ADJ_ALLOC_SIZE(get_tunable(FT_POOL_ONE_MAX_ALLOC_SIZE_STR, POOL_ONE_MAX_ALLOC_SIZE));
+
+    g_pools[1].min_alloc_size = g_pools[0].max_alloc_size + 1;
+    g_pools[1].max_alloc_size = ADJ_ALLOC_SIZE(get_tunable(FT_POOL_TWO_MAX_ALLOC_SIZE_STR, POOL_TWO_MAX_ALLOC_SIZE));
+
+    assert(g_pools[1].min_alloc_size > g_pools[0].max_alloc_size);
+    assert(g_pools[1].max_alloc_size > g_pools[0].max_alloc_size);
+}
 
 /**
  * @brief Initialize the allocator.
@@ -50,6 +63,7 @@ init_malloc() {
     if (is_init) {
         return (0);
     }
+    configure_pools_tunable();
     while (i < N_POOLS) {
         if (init_pool(&g_pools[i]) == -1) {
             while (j < i) {
@@ -80,7 +94,7 @@ malloc(size_t size) {
     adj_size = ADJ_ALLOC_SIZE(size);
     if ((blk = find_fit_in_pools(g_pools, N_POOLS, adj_size, &blk_pool)) == NULL) {
         if (blk_pool != NULL) {
-            extention_size = MAX(adj_size, POOL_CHUNK_EXTENSION);
+            extention_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
             if ((blk = extend_pool(blk_pool, extention_size / WORD_SIZE)) == (void *)-1) {
                 return (NULL);
             }

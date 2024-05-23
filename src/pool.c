@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:56:36 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 17:24:54 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "inc/malloc.h"
 #include "malloc.h"
 #include "malloc_utils.h"
+#include "tunable.h"
 
 /**
  * @brief Find a free block in the pool that can fit the adjusted size.
@@ -132,7 +133,7 @@ init_pool(t_pool *pool) {
     PUT_WORD(heap + (6 * WORD_SIZE), PACK(4 * WORD_SIZE, ALLOCATED));
     /* Epilogue */
     PUT_WORD(heap + (7 * WORD_SIZE), PACK(0, ALLOCATED));
-    if (extend_pool(pool, POOL_CHUNK_EXTENSION / WORD_SIZE) == NULL) {
+    if (extend_pool(pool, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION) / WORD_SIZE) == NULL) {
         return (-1);
     }
     pool->beginning = NEXT_BLK(heap + (4 * WORD_SIZE));

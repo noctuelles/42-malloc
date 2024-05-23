@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:56:44 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 17:19:49 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 #include "block.h"
 #include "heap.h"
 #include "inc/malloc.h"
-
-#define POOL_CHUNK_EXTENSION (1U << 14)
 
 typedef uint8_t  t_byte;
 typedef uint32_t t_word;

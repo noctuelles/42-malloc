@@ -1,29 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   malloc.h                                           :+:      :+:    :+:   */
+/*   tunable.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/10 15:11:36 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 17:20:39 by plouvel          ###   ########.fr       */
+/*   Created: 2024/05/23 17:06:00 by plouvel           #+#    #+#             */
+/*   Updated: 2024/05/23 17:09:41 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MALLOC_H
-#define MALLOC_H
+#include <stdlib.h>
 
-#include "pool.h"
+size_t
+get_tunable(const char *name, size_t default_value) {
+    char *env_var = NULL;
 
-#define N_POOLS 2
-
-#define POOL_ONE_MIN_ALLOC_SIZE 1
-#define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)
-
-#define ADJ_ALLOC_SIZE(size) (QWORD_SIZE * (((size) + (MIN_BLK_SIZE - 1)) / QWORD_SIZE))
-
-void *malloc(size_t size);
-void *realloc(void *ptr, size_t size);
-void  free(void *ptr);
-
-#endif
+    env_var = getenv(name);
+    if (env_var == NULL) {
+        return (default_value);
+    }
+    return (atoll(env_var));
+}
