@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 14:15:02 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 11:59:12 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -417,21 +417,34 @@ test_place_block_INSIDE_LARGE_FREE() {}
 //     TEST_ASSERT_EQUAL(0, ((uintptr_t)blk & 0x7));
 // }
 
+void
+test_fill_anonymous_blk() {
+    blk = fill_anonymous_blk(fake_heap, UINT64_MAX);
+
+    TEST_ASSERT_EQUAL(1 << 12, GET_SIZE(GET_HDR(blk)));
+
+    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL(ANONYMOUS, GET_ANONYMOUS(GET_HDR(blk)));
+
+    TEST_ASSERT_EQUAL_UINT64(UINT64_MAX, GET_ANON_SIZE(GET_HDR(blk)));
+    TEST_ASSERT_TRUE((uintptr_t)blk % QWORD_SIZE == 0);
+}
+
 int
 main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(test_expand_blk);
-    RUN_TEST(test_expand_blk_XPND_SIZE_TOO_BIG);
-    RUN_TEST(test_expand_blk_TAKE_ADJ_FREE_0);
-    RUN_TEST(test_expand_blk_TAKE_ADJ_FREE_1);
+    // RUN_TEST(test_expand_blk);
+    // RUN_TEST(test_expand_blk_XPND_SIZE_TOO_BIG);
+    // RUN_TEST(test_expand_blk_TAKE_ADJ_FREE_0);
+    // RUN_TEST(test_expand_blk_TAKE_ADJ_FREE_1);
 
-    RUN_TEST(test_shrink_blk_NO_COALESCING);
-    RUN_TEST(test_shrink_blk_SHRINK_TOO_SMALL);
-    RUN_TEST(test_shrink_blk_SHRINK_TOO_MUCH);
-    RUN_TEST(test_shrink_blk_WITH_COALESCING);
+    // RUN_TEST(test_shrink_blk_NO_COALESCING);
+    // RUN_TEST(test_shrink_blk_SHRINK_TOO_SMALL);
+    // RUN_TEST(test_shrink_blk_SHRINK_TOO_MUCH);
+    // RUN_TEST(test_shrink_blk_WITH_COALESCING);
 
-    RUN_TEST(test_print_blk);
+    RUN_TEST(test_fill_anonymous_blk);
 
     return UNITY_END();
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 15:09:38 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 12:04:13 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@
 #define MIN_ALLOC_PER_POOL 100
 
 #define POOL_ONE_MIN_ALLOC_SIZE 1
-#define POOL_ONE_MAX_ALLOC_SIZE 512
+#define POOL_ONE_MAX_ALLOC_SIZE (1 << 9)
 
 #define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)
-#define POOL_TWO_MAX_ALLOC_SIZE 4096
+#define POOL_TWO_MAX_ALLOC_SIZE (1 << 12)
 
 #define ADJ_POOL_SIZE(max_alloc_size, page_size) \
     ((page_size) * (ADJ_ALLOC_SIZE(max_alloc_size) * MIN_ALLOC_PER_POOL + (page_size)))

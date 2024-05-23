@@ -6,13 +6,15 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 17:36:28 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 13:54:44 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 
@@ -60,28 +62,18 @@ init_malloc() {
     return (0);
 }
 
-void *
-my_memcpy(void *dest, const void *src, size_t n) {
-    char       *d = dest;
-    const char *s = src;
-    while (n--) {
-        *d++ = *s++;
-    }
-    return dest;
-}
+// static void *
+// new_malloc_n_cpy(void *old_ptr, size_t old_size, size_t new_size) {
+//     void *new_ptr = NULL;
 
-static void *
-new_malloc_n_cpy(void *old_ptr, size_t old_size, size_t new_size) {
-    void *new_ptr = NULL;
-
-    new_ptr = malloc(new_size);
-    if (new_ptr == NULL) {
-        return (NULL);
-    }
-    my_memcpy(new_ptr, old_ptr, old_size);
-    free(old_ptr);
-    return (new_ptr);
-}
+//     new_ptr = malloc(new_size);
+//     if (new_ptr == NULL) {
+//         return (NULL);
+//     }
+//     my_memcpy(new_ptr, old_ptr, old_size);
+//     free(old_ptr);
+//     return (new_ptr);
+// }
 
 void *
 malloc(size_t size) {
@@ -116,24 +108,25 @@ realloc(void *ptr, size_t size) {
     if (ptr == NULL) {
         return (malloc(size));
     }
-    if (adj_size == 0) {
+    if (size == 0) {
         free(ptr);
         return (NULL);
     }
     if ((blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr)) == NULL) {
+        blk_size = GET_ANON_SIZE(GET_HDR(ptr));
+    } else {
+        blk_size = GET_SIZE(GET_HDR(ptr));
+    }
+    (void)blk_pool;
+    if (adj_size < blk_size) {
+        return (ptr);
+    }
+    void *new_ptr = malloc(adj_size);
+    if (!new_ptr) {
         return (NULL);
     }
-    blk_size = GET_SIZE(GET_HDR(ptr));
-    if (adj_size < blk_size) {
-        if (shrink_blk(&blk_pool->head, ptr, blk_size - adj_size) == NULL) {
-            return (ptr);
-        }
-    } else if (adj_size > blk_size) {
-        if (expand_blk(&blk_pool->head, ptr, adj_size - blk_size) == NULL) {
-            return (new_malloc_n_cpy(ptr, blk_size, adj_size));
-        }
-    }
-    return (ptr);
+    memcpy(new_ptr, ptr, blk_size);
+    return (new_ptr);
 }
 
 void
@@ -149,4 +142,16 @@ free(void *ptr) {
     PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
     PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
     coalesce_blk(&blk_pool->head, ptr);
+}
+
+void *
+calloc(size_t nmemb, size_t size) {
+    size_t total_size = nmemb * size;
+    void  *ptr        = malloc(total_size);
+
+    if (ptr == NULL) {
+        return (NULL);
+    }
+    bzero(ptr, total_size);
+    return (ptr);
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 17:07:13 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 12:01:05 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,17 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
     }
 }
 
+void *
+fill_anonymous_blk(uint8_t *blk, size_t size) {
+    /* Padding */
+    PUT_WORD(blk + (0 * WORD_SIZE), 0x00000000U);
+    /* Anonymous Block Size */
+    PUT_DWORD(blk + (1 * WORD_SIZE), size);
+    /* Header */
+    PUT_WORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), PACK(0, ALLOCATED | ANONYMOUS));
+
+    return (blk + (2 * WORD_SIZE + 1 * DWORD_SIZE));
+}
 /**
  * @brief Allocate a new anonymous block. An anonymous block doesn't belong to any pool.
  *
@@ -186,20 +197,16 @@ new_anonymous_blk(size_t size) {
     if (blk == MAP_FAILED) {
         return (NULL);
     }
-
-    /* Padding */
-    PUT_WORD(blk + (0 * WORD_SIZE), 0x00000000U);
-    /* Anonymous Block Size */
-    PUT_DWORD(blk + (1 * WORD_SIZE), size);
-    /* Header */
-    PUT_WORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), PACK(0, ALLOCATED | ANONYMOUS));
-
-    return (blk + (2 * WORD_SIZE + 1 * DWORD_SIZE));
+    return (fill_anonymous_blk(blk, size));
 }
 
 void
 free_anonymous_blk(void *blk) {
     void *blk_header = GET_HDR(blk);
+
+    // assert(GET_ANONYMOUS(blk_header) == ANONYMOUS);
+    // assert(GET_ALLOC(blk_header) == ALLOCATED);
+    // assert(GET_SIZE(blk_header) == 0);
 
     munmap(GET_ANON_BASE(blk_header), GET_ANON_SIZE(blk_header));
 }
