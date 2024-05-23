@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 15:56:51 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:20:41 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,18 @@
  */
 void *
 find_fit_in_pool(t_pool *pool, const size_t adj_size) {
-    t_free_list *blk = pool->head;
+    t_free_list *blk      = pool->head;
+    size_t       blk_size = 0;
 
     while (blk != NULL) {
-        if (GET_SIZE(GET_HDR(blk)) >= adj_size) {
-            return (blk);
+        blk_size = GET_SIZE(GET_HDR(blk));
+        if (blk_size >= adj_size) {
+            if ((blk_size - adj_size) >= MIN_BLK_SIZE) {
+                return (blk);
+            }
+            if (blk_size <= pool->max_alloc_size) {
+                return (blk);
+            }
         }
         blk = blk->next;
     }
