@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 17:29:45 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 18:03:40 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "block.h"
 #include "malloc_utils.h"
 #include "pool.h"
+#include "pthread.h"
 #include "tunable.h"
 
 static t_pool g_pools[N_POOLS] = {{
@@ -36,6 +37,8 @@ static t_pool g_pools[N_POOLS] = {{
                                       .head           = NULL,
                                       .heap           = {0},
                                   }};
+
+static pthread_mutex_t g_pools_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
 configure_pools_tunable() {
@@ -63,6 +66,7 @@ init_malloc() {
     if (is_init) {
         return (0);
     }
+    pthread_mutex_lock(&g_pools_mutex);
     configure_pools_tunable();
     while (i < N_POOLS) {
         if (init_pool(&g_pools[i]) == -1) {
@@ -75,6 +79,7 @@ init_malloc() {
         i++;
     }
     is_init = true;
+    pthread_mutex_unlock(&g_pools_mutex);
     return (0);
 }
 
@@ -92,18 +97,23 @@ malloc(size_t size) {
         size = 1;
     }
     adj_size = ADJ_ALLOC_SIZE(size);
-    if ((blk = find_fit_in_pools(g_pools, N_POOLS, adj_size, &blk_pool)) == NULL) {
+    blk      = find_fit_in_pools(g_pools, N_POOLS, adj_size, &blk_pool);
+    if (blk_pool != NULL) {
+        pthread_mutex_lock(&g_pools_mutex);
+    }
+    if (blk == NULL) {
         if (blk_pool != NULL) {
             extention_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
-            if ((blk = extend_pool(blk_pool, extention_size / WORD_SIZE)) == (void *)-1) {
+            blk            = extend_pool(blk_pool, extention_size / WORD_SIZE);
+            if (blk == (void *)-1) {
                 return (NULL);
             }
         } else {
-            blk = new_anonymous_blk(adj_size);
-            return (blk);
+            return (new_anonymous_blk(adj_size));
         }
     }
     place_blk(&blk_pool->head, blk, adj_size);
+    pthread_mutex_unlock(&g_pools_mutex);
     return (blk);
 }
 
@@ -121,7 +131,8 @@ realloc(void *ptr, size_t size) {
         return (NULL);
     }
     adj_size = ADJ_ALLOC_SIZE(size);
-    if ((blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr)) == NULL) {
+    blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
+    if (blk_pool == NULL) {
         blk_size = GET_ANON_SIZE(GET_HDR(ptr));
     } else {
         blk_size = GET_SIZE(GET_HDR(ptr));
@@ -145,12 +156,15 @@ free(void *ptr) {
     if (ptr == NULL) {
         return;
     }
-    if ((blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr)) == NULL) {
+    blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
+    if (blk_pool == NULL) {
         return (free_anonymous_blk(ptr));
     }
+    pthread_mutex_lock(&g_pools_mutex);
     PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
     PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
     coalesce_blk(&blk_pool->head, ptr);
+    pthread_mutex_unlock(&g_pools_mutex);
 }
 
 void *
