@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:20:41 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:56:36 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 #include "inc/malloc.h"
 #include "malloc.h"
+#include "malloc_utils.h"
 
 /**
  * @brief Find a free block in the pool that can fit the adjusted size.
@@ -139,13 +140,16 @@ init_pool(t_pool *pool) {
 }
 
 void
-print_pool(const t_pool *pool, bool show_free_blks) {
+print_pool(const t_pool *pool, int opts) {
     void        *blk      = pool->beginning;
     t_free_list *free_blk = NULL;
+    size_t       alloc    = 0;
 
     printf("## Pool [%lu;%lu] ##\n", pool->min_alloc_size, pool->max_alloc_size);
     while (GET_SIZE(GET_HDR(blk)) != 0) {
-        if (GET_ALLOC(GET_HDR(blk)) == FREE && show_free_blks) {
+        alloc = GET_ALLOC(GET_HDR(blk));
+
+        if (!alloc && opts & PRINT_FREE) {
             free_blk = FREE_LIST_ELEM(blk);
             if (blk == pool->head) {
                 printf("\tFree Block %p : %u bytes [HEAD].\n", blk, GET_SIZE(GET_HDR(blk)));
@@ -154,7 +158,7 @@ print_pool(const t_pool *pool, bool show_free_blks) {
             }
             printf("\t\t- prev : %p\n", free_blk->prev);
             printf("\t\t- next : %p\n", free_blk->next);
-        } else {
+        } else if (alloc && opts & PRINT_ALLOC) {
             printf("\tAllocated Block %p : %u bytes, %lu usable.\n", blk, GET_SIZE(GET_HDR(blk)), GET_PLD_SIZE(blk));
         }
         blk = NEXT_BLK(blk);
@@ -163,16 +167,18 @@ print_pool(const t_pool *pool, bool show_free_blks) {
 }
 
 void
-print_pretty_pool(const t_pool *pool, bool show_free_blks) {
-    void *blk = pool->beginning;
+print_pretty_pool(const t_pool *pool, int opts) {
+    void  *blk   = pool->beginning;
+    size_t alloc = 0;
 
     printf("## Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
     while (GET_SIZE(GET_HDR(blk)) != 0) {
-        if (GET_ALLOC(GET_HDR(blk)) == FREE && !show_free_blks) {
-            goto next;
+        alloc = GET_ALLOC(GET_HDR(blk));
+        if (alloc && opts & PRINT_ALLOC) {
+            print_blk(blk);
+        } else if (!alloc && opts & PRINT_FREE) {
+            print_blk(blk);
         }
-        print_blk(blk);
-    next:
         blk = NEXT_BLK(blk);
     }
     fflush(stdout);

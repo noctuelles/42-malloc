@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 15:27:02 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:56:44 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,7 @@
 #include "heap.h"
 #include "inc/malloc.h"
 
-#define N_POOLS 2
-#define MIN_ALLOC_PER_POOL 100
-
-#define POOL_ONE_MIN_ALLOC_SIZE 1
-#define POOL_ONE_MAX_ALLOC_SIZE (1 << 8)
-
-#define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)
-#define POOL_TWO_MAX_ALLOC_SIZE (1 << 15)
-
-#define ADJ_POOL_SIZE(max_alloc_size, page_size) \
-    ((page_size) * (ADJ_ALLOC_SIZE(max_alloc_size) * MIN_ALLOC_PER_POOL + (page_size)))
-
-#define POOL_CHUNK_EXTENSION (1U << 12)
+#define POOL_CHUNK_EXTENSION (1U << 14)
 
 typedef uint8_t  t_byte;
 typedef uint32_t t_word;
@@ -53,7 +41,7 @@ int     init_pool(t_pool *pool);
 void   *find_fit_in_pool(t_pool *pool, const size_t size);
 t_pool *find_blk_in_pools(t_pool *pools, size_t n, void *blk);
 void   *find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_pool);
-void    print_pool(const t_pool *pool, bool show_free_blks);
-void    print_pretty_pool(const t_pool *pool, bool show_free_blks);
+void    print_pool(const t_pool *pool, int opts);
+void    print_pretty_pool(const t_pool *pool, int opts);
 
 #endif

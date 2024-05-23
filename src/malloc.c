@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:40:32 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:57:13 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <sys/mman.h>
 
 #include "block.h"
+#include "malloc_utils.h"
 #include "pool.h"
 
 static t_pool g_pools[N_POOLS] = {{
@@ -148,4 +149,34 @@ calloc(size_t nmemb, size_t size) {
     }
     bzero(ptr, total_size);
     return (ptr);
+}
+
+void
+show_alloc_mem() {
+    size_t i = 0;
+
+    while (i < N_POOLS) {
+        print_pool(&g_pools[i], PRINT_ALLOC);
+        i++;
+    }
+}
+
+void
+show_alloc_mem_hex() {
+    size_t i = 0;
+
+    while (i < N_POOLS) {
+        print_pretty_pool(&g_pools[i], PRINT_ALLOC);
+        i++;
+    }
+}
+
+void
+show_pools_mem() {
+    size_t i = 0;
+
+    while (i < N_POOLS) {
+        print_pool(&g_pools[i], PRINT_ALLOC | PRINT_FREE);
+        i++;
+    }
 }

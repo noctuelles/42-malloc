@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 15:11:36 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 16:23:52 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:46:23 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,14 @@
 
 #include "pool.h"
 
-#define POOL_NBR 2
+#define N_POOLS 2
+
+#define POOL_ONE_MIN_ALLOC_SIZE 1
+#define POOL_ONE_MAX_ALLOC_SIZE (1 << 7)
+
+#define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)
+#define POOL_TWO_MAX_ALLOC_SIZE (1 << 15)
+
 #define ADJ_ALLOC_SIZE(size) (QWORD_SIZE * (((size) + (MIN_BLK_SIZE - 1)) / QWORD_SIZE))
 
 void *malloc(size_t size);

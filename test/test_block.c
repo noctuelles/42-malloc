@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 11:59:12 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:44:11 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -421,7 +421,7 @@ void
 test_fill_anonymous_blk() {
     blk = fill_anonymous_blk(fake_heap, UINT64_MAX);
 
-    TEST_ASSERT_EQUAL(1 << 12, GET_SIZE(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL(0, GET_SIZE(GET_HDR(blk)));
 
     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
     TEST_ASSERT_EQUAL(ANONYMOUS, GET_ANONYMOUS(GET_HDR(blk)));

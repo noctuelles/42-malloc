@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 13:58:13 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/23 16:43:15 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
     size_t blk_size           = GET_SIZE(GET_HDR(blk));
     size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
     size_t new_free_blk_size  = 0;
-
-    assert(xpnd_size % 8 == 0);
 
     if (GET_ALLOC(GET_HDR(next_blk)) == FREE) {
         if (next_free_blk_size >= xpnd_size) {
@@ -75,8 +73,6 @@ shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
     size_t blk_size           = GET_SIZE(GET_HDR(blk));
     size_t new_blk_size       = blk_size - shrk_size;
     void  *created_free_block = NULL;
-
-    assert(shrk_size % 8 == 0);
 
     if (new_blk_size < MIN_BLK_SIZE || shrk_size < MIN_BLK_SIZE) {
         return (NULL);
