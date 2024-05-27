@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/22 19:56:37 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 20:17:54 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 17:57:10 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,17 +22,17 @@ static t_free_list elem3 = {0};
 
 void
 setUp(void) {
-    elem0.next = &elem1;
     elem0.prev = NULL;
+    elem0.next = &elem1;
 
-    elem1.next = &elem2;
     elem1.prev = &elem0;
+    elem1.next = &elem2;
 
-    elem2.next = &elem3;
     elem2.prev = &elem1;
+    elem2.next = &elem3;
 
-    elem3.next = NULL;
     elem3.prev = &elem2;
+    elem3.next = NULL;
 
     head = &elem0;
 }
@@ -86,6 +86,16 @@ test_delone_free_list_MIDDLE() {
 
     TEST_ASSERT_EQUAL_PTR(&elem1, elem3.prev);
     TEST_ASSERT_EQUAL_PTR(NULL, elem3.next);
+}
+
+void
+test_delone_free_list_SINGLE_ELEM() {
+    t_free_list  elem = {0};
+    t_free_list *head = &elem;
+
+    delone_free_list(&head, &elem);
+
+    TEST_ASSERT_EQUAL_PTR(NULL, head);
 }
 
 void
@@ -171,7 +181,7 @@ void
 test_move_free_list_ptr_TAIL() {
     t_free_list elem4 = {0};
 
-    move_free_list_ptr(&head, &elem3, &elem4);
+    move_free_list_ptr(&head, &elem4, &elem3);
 
     TEST_ASSERT_EQUAL_PTR(&elem0, head);
 
@@ -200,6 +210,7 @@ main(void) {
     RUN_TEST(test_delone_free_list_HEAD);
     RUN_TEST(test_delone_free_list_TAIL);
     RUN_TEST(test_delone_free_list_MIDDLE);
+    RUN_TEST(test_delone_free_list_SINGLE_ELEM);
 
     RUN_TEST(test_push_front_free_list_EXISTING_LIST);
     RUN_TEST(test_push_front_free_list_NEW_LIST);

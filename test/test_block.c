@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 16:14:57 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 17:08:46 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@
 #include "block.h"
 #include "unity.h"
 
-#define FAKE_HEAP_SIZE 1 << 12
+#define FAKE_HEAP_SIZE (1U << 12)
+#define XPND_SIZE (1U << 4)
 
 static t_byte       fake_heap[FAKE_HEAP_SIZE] = {0};
 static void        *blk                       = NULL;
@@ -40,28 +41,63 @@ tearDown() {
     head = NULL;
 }
 
-// void
-// test_expand_blk() {
-//     void        *next_blk   = NULL;
-//     const size_t xpand_size = DWORD_SIZE;
+void
+test_expand_blk_NEXT_FREE_BIG_ENOUGH() {
+    void       *next_blk = NULL;
+    t_free_list fake_prev_free_blk, fake_next_free_blk;
 
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+    PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+    PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
 
-//     next_blk = NEXT_BLK(blk);
+    next_blk                = NEXT_BLK(blk);
+    head                    = FREE_LIST_ELEM(next_blk);
+    fake_prev_free_blk.next = head;
+    head->prev              = &fake_prev_free_blk;
+    head->next              = &fake_next_free_blk;
+    fake_next_free_blk.prev = head;
 
-//     PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE + xpand_size, FREE));
-//     PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE + xpand_size, FREE));
-//     head = FREE_LIST_ELEM(next_blk);
+    PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE + XPND_SIZE, FREE));
+    PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE + XPND_SIZE, FREE));
 
-//     blk      = expand_blk(&head, blk, xpand_size);
-//     next_blk = NEXT_BLK(blk);
+    expand_blk(&head, blk, XPND_SIZE);
 
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE + xpand_size, GET_SIZE(GET_HDR(blk)));
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE, GET_SIZE(GET_HDR(next_blk)));
-//     TEST_ASSERT_EQUAL_PTR(FREE_LIST_ELEM(next_blk), head);
-//     TEST_ASSERT_TRUE((uintptr_t)next_blk % DWORD_SIZE == 0);
-// }
+    next_blk = NEXT_BLK(blk);
+
+    TEST_ASSERT_EQUAL_PTR(next_blk, head);
+    TEST_ASSERT_EQUAL_PTR(&fake_prev_free_blk, head->prev);
+    TEST_ASSERT_EQUAL_PTR(&fake_next_free_blk, head->next);
+    TEST_ASSERT_EQUAL_PTR(head, fake_prev_free_blk.next);
+    TEST_ASSERT_EQUAL_PTR(head, fake_next_free_blk.prev);
+
+    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL(MIN_BLK_SIZE + XPND_SIZE, GET_SIZE(GET_HDR(blk)));
+
+    TEST_ASSERT_EQUAL(FREE, GET_ALLOC(GET_HDR(next_blk)));
+    TEST_ASSERT_EQUAL(MIN_BLK_SIZE, GET_SIZE(GET_HDR(next_blk)));
+}
+
+void
+test_expand_blk_NEXT_FREE_NOT_BIG_ENOUGH() {
+    void       *next_blk = NULL;
+    t_free_list fake_prev_free_blk;
+
+    PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+    PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+
+    next_blk                = NEXT_BLK(blk);
+    head                    = FREE_LIST_ELEM(next_blk);
+    fake_prev_free_blk.next = head;
+    head->prev              = &fake_prev_free_blk;
+    head->next              = NULL;
+
+    PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE, FREE));
+    PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE, FREE));
+
+    expand_blk(&head, blk, XPND_SIZE);
+
+    TEST_ASSERT_EQUAL_PTR(NULL, head);
+    TEST_ASSERT_EQUAL_PTR(NULL, fake_prev_free_blk.next);
+}
 
 // void
 // test_expand_blk_XPND_SIZE_TOO_BIG() {
@@ -399,6 +435,9 @@ test_fill_orphean_blk() {
 int
 main(void) {
     UNITY_BEGIN();
+
+    RUN_TEST(test_expand_blk_NEXT_FREE_BIG_ENOUGH);
+    RUN_TEST(test_expand_blk_NEXT_FREE_NOT_BIG_ENOUGH);
 
     RUN_TEST(test_coalesce_blk_NO_ADJACENT_FREE);
     RUN_TEST(test_coalesce_blk_PREV_FREE);
