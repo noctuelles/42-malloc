@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:43:15 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:21:16 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,75 +21,76 @@
 
 #include "utils.h"
 
-/**
- * @brief Tries to expand the block blk by xpnd_size bytes by using the next adjacent free block.
- *
- * @param head head of the free list of the pool of blk.
- * @param blk the block expansion block.
- * @param xpnd_size double word aligned expand size.
- * @return void* NULL if blk cannot be expanded, blk otherwise.
- */
-void *
-expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
-    void  *next_blk           = NEXT_BLK(blk);
-    size_t blk_size           = GET_SIZE(GET_HDR(blk));
-    size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
-    size_t new_free_blk_size  = 0;
+// /**
+//  * @brief Tries to expand the block blk by xpnd_size bytes by using the next adjacent free block.
+//  *
+//  * @param head head of the free list of the pool of blk.
+//  * @param blk the block expansion block.
+//  * @param xpnd_size double word aligned expand size.
+//  * @return void* NULL if blk cannot be expanded, blk otherwise.
+//  */
+// void *
+// expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
+//     void  *next_blk           = NEXT_BLK(blk);
+//     size_t blk_size           = GET_SIZE(GET_HDR(blk));
+//     size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
+//     size_t new_free_blk_size  = 0;
 
-    if (GET_ALLOC(GET_HDR(next_blk)) == FREE) {
-        if (next_free_blk_size >= xpnd_size) {
-            new_free_blk_size = next_free_blk_size - xpnd_size;
-            if (new_free_blk_size < MIN_BLK_SIZE) {
-                delone_free_list(head, next_blk);
+//     if (GET_ALLOC(GET_HDR(next_blk)) == FREE) {
+//         if (next_free_blk_size >= xpnd_size) {
+//             new_free_blk_size = next_free_blk_size - xpnd_size;
+//             if (new_free_blk_size < MIN_BLK_SIZE) {
+//                 delone_free_list(head, next_blk);
 
-                PUT_WORD(GET_HDR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
-                PUT_WORD(GET_FTR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
-            } else {
-                move_free_list_ptr(head, (t_free_list *)((t_byte *)next_blk + xpnd_size), next_blk);
-                PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
-                PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+//                 PUT_WORD(GET_HDR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
+//                 PUT_WORD(GET_FTR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
+//             } else {
+//                 move_free_list_ptr(head, (t_free_list *)((t_byte *)next_blk + xpnd_size), next_blk);
+//                 PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+//                 PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
 
-                next_blk = NEXT_BLK(blk);
+//                 next_blk = NEXT_BLK(blk);
 
-                PUT_WORD(GET_HDR(next_blk), PACK(new_free_blk_size, FREE));
-                PUT_WORD(GET_FTR(next_blk), PACK(new_free_blk_size, FREE));
-            }
-            return (blk);
-        }
-    }
-    return (NULL);
-}
+//                 PUT_WORD(GET_HDR(next_blk), PACK(new_free_blk_size, FREE));
+//                 PUT_WORD(GET_FTR(next_blk), PACK(new_free_blk_size, FREE));
+//             }
+//             return (blk);
+//         }
+//     }
+//     return (NULL);
+// }
 
-/**
- * @brief Try to shrink the block blk by shrk_size bytes. If the shrinking is not worth it, the block is left untouched.
- *
- * @param head head of the free list of the pool of blk.
- * @param blk block to be shrunk.
- * @param shrk_size double word aligned shrink size.
- * @return void* NULL if blk cannot be shrunk, blk otherwise.
- */
-void *
-shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
-    size_t blk_size           = GET_SIZE(GET_HDR(blk));
-    size_t new_blk_size       = blk_size - shrk_size;
-    void  *created_free_block = NULL;
+// /**
+//  * @brief Try to shrink the block blk by shrk_size bytes. If the shrinking is not worth it, the block is left
+//  untouched.
+//  *
+//  * @param head head of the free list of the pool of blk.
+//  * @param blk block to be shrunk.
+//  * @param shrk_size double word aligned shrink size.
+//  * @return void* NULL if blk cannot be shrunk, blk otherwise.
+//  */
+// void *
+// shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
+//     size_t blk_size           = GET_SIZE(GET_HDR(blk));
+//     size_t new_blk_size       = blk_size - shrk_size;
+//     void  *created_free_block = NULL;
 
-    if (new_blk_size < MIN_BLK_SIZE || shrk_size < MIN_BLK_SIZE) {
-        return (NULL);
-    }
+//     if (new_blk_size < MIN_BLK_SIZE || shrk_size < MIN_BLK_SIZE) {
+//         return (NULL);
+//     }
 
-    PUT_WORD(GET_HDR(blk), PACK(new_blk_size, ALLOCATED));
-    PUT_WORD(GET_FTR(blk), PACK(new_blk_size, ALLOCATED));
+//     PUT_WORD(GET_HDR(blk), PACK(new_blk_size, ALLOCATED));
+//     PUT_WORD(GET_FTR(blk), PACK(new_blk_size, ALLOCATED));
 
-    created_free_block = NEXT_BLK(blk);
+//     created_free_block = NEXT_BLK(blk);
 
-    PUT_WORD(GET_HDR(created_free_block), PACK(shrk_size, FREE));
-    PUT_WORD(GET_FTR(created_free_block), PACK(shrk_size, FREE));
+//     PUT_WORD(GET_HDR(created_free_block), PACK(shrk_size, FREE));
+//     PUT_WORD(GET_FTR(created_free_block), PACK(shrk_size, FREE));
 
-    coalesce_blk(head, created_free_block);
+//     coalesce_blk(head, created_free_block);
 
-    return (blk);
-}
+//     return (blk);
+// }
 
 /**
  * @brief Coalesce adjacent free block around blk.
@@ -164,50 +165,10 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
     }
 }
 
-void *
-fill_anonymous_blk(uint8_t *blk, size_t size) {
-    /* Padding */
-    PUT_WORD(blk + (0 * WORD_SIZE), 0x00000000U);
-    /* Anonymous Block Size */
-    PUT_DWORD(blk + (1 * WORD_SIZE), size);
-    /* Header */
-    PUT_WORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), PACK(0, ALLOCATED | ANONYMOUS));
-
-    return (blk + (2 * WORD_SIZE + 1 * DWORD_SIZE));
-}
-/**
- * @brief Allocate a new anonymous block. An anonymous block doesn't belong to any pool.
- *
- * @param size size of the block, aligned to a double word boundary.
- * @return void* pointer to the allocated bloc.
- */
-void *
-new_anonymous_blk(size_t size) {
-    size        = size + 2 * DWORD_SIZE;
-    size        = align_on_page_size_boundary(size);
-    t_byte *blk = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-
-    if (blk == MAP_FAILED) {
-        return (NULL);
-    }
-    return (fill_anonymous_blk(blk, size));
-}
-
-void
-free_anonymous_blk(void *blk) {
-    void *blk_header = GET_HDR(blk);
-
-    // assert(GET_ANONYMOUS(blk_header) == ANONYMOUS);
-    // assert(GET_ALLOC(blk_header) == ALLOCATED);
-    // assert(GET_SIZE(blk_header) == 0);
-
-    munmap(GET_ANON_BASE(blk_header), GET_ANON_SIZE(blk_header));
-}
-
 static void
 print_hdr_ftr(void *hdr) {
     printf("+-----------------------+\n");
-    printf("|%3s%#010x%3s|    %c%c|\n", "", GET_SIZE(hdr), "", GET_ANONYMOUS(hdr) ? 'A' : 'N',
+    printf("|%3s%#010x%3s|    %c%c|\n", "", GET_SIZE(hdr), "", GET_ORPHEAN(hdr) ? 'O' : 'N',
            GET_ALLOC(hdr) ? 'A' : 'F');
     printf("+-----------------------+\n");
 }

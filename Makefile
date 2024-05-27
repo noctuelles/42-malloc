@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/23 17:45:55 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/27 15:22:46 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ UNITY_PATH=unity/src
 # Sources
 
 SRC=block.c \
+	orphean_block.c \
     heap.c \
 	malloc.c \
 	free_list.c \

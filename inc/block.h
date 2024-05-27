@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 11:48:55 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:19:32 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ High addr   +--------------+
 */
 
 #define ALLOCATED 1U
-#define ANONYMOUS (1U << 1)
+#define ORPHEAN (1U << 1)
 #define FREE 0U
 
 #define BLK_PAD_SIZE (2 * WORD_SIZE)
@@ -97,9 +97,9 @@ High addr   +--------------+
 #define GET_ALLOC(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ALLOCATED)
 #define GET_PAYLOAD_SIZE(hdr_or_ftr) (GET_SIZE(hdr_or_ftr) - (2 * WORD_SIZE))
 
-#define GET_ANONYMOUS(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ANONYMOUS)
-#define GET_ANON_SIZE(hdr) (GET_DWORD((t_byte *)(hdr) - DWORD_SIZE))
-#define GET_ANON_BASE(hdr) ((t_byte *)(hdr) - (3 * WORD_SIZE))
+#define GET_ORPHEAN(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ORPHEAN)
+#define GET_ORPHEAN_SIZE(hdr) (GET_DWORD((t_byte *)(hdr) - DWORD_SIZE))
+#define GET_ORPHEAN_BASE(hdr) ((t_byte *)(hdr) - (3 * WORD_SIZE))
 
 #define PACK(size, is_allocated) ((size) | (is_allocated))
 
@@ -126,9 +126,9 @@ High addr   +--------------+
 
 #define FREE_LIST_ELEM(blk_ptr) ((t_free_list *)(blk_ptr))
 
-void *fill_anonymous_blk(uint8_t *blk, size_t size);
-void *new_anonymous_blk(size_t size);
-void  free_anonymous_blk(void *blk);
+void *fill_orphean_blk(uint8_t *blk, size_t size);
+void *new_orphean_blk(size_t size);
+void  free_orphean_blk(void *blk);
 
 void *expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
 void *shrink_blk(t_free_list **head, void *blk, size_t shrk_size);

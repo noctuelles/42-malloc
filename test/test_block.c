@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 16:44:11 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:18:49 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,35 +191,6 @@ test_print_blk() {
 
     print_blk(blk);
 }
-
-// void
-// sig_abrt(int) {
-//     TEST_ABORT();
-// }
-
-// void
-// test_PUT_WORD() {
-//     uint32_t word;
-//     uint64_t dword;
-
-//     PUT_WORD(&word, 0xDEADBEEF);
-//     PUT_WORD(&dword, 0xDEADBEEF);
-
-//     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, word);
-//     TEST_ASSERT_EQUAL_HEX64(0x00000000DEADBEEF, dword);
-// }
-
-// void
-// test_GET_WORD() {
-//     uint32_t word  = 0xDEADBEEF;
-//     uint64_t dword = 0x00000000DEADBEEF;
-
-//     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&word));
-//     TEST_ASSERT_EQUAL_HEX32(0xDEADBEEF, GET_WORD(&dword));
-// }
-
-void
-test_place_block_INSIDE_LARGE_FREE() {}
 
 // void
 // test_place_block_EXACT_SIZE() {
@@ -419,14 +390,14 @@ test_place_block_INSIDE_LARGE_FREE() {}
 
 void
 test_fill_anonymous_blk() {
-    blk = fill_anonymous_blk(fake_heap, UINT64_MAX);
+    blk = fill_orphean_blk(fake_heap, UINT64_MAX);
 
     TEST_ASSERT_EQUAL(0, GET_SIZE(GET_HDR(blk)));
 
     TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
-    TEST_ASSERT_EQUAL(ANONYMOUS, GET_ANONYMOUS(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL(ORPHEAN, GET_ORPHEAN(GET_HDR(blk)));
 
-    TEST_ASSERT_EQUAL_UINT64(UINT64_MAX, GET_ANON_SIZE(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL_UINT64(UINT64_MAX, GET_ORPHEAN_SIZE(GET_HDR(blk)));
     TEST_ASSERT_TRUE((uintptr_t)blk % QWORD_SIZE == 0);
 }
 

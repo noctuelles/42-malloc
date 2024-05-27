@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 18:03:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:17:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,10 +85,10 @@ init_malloc() {
 
 void *
 malloc(size_t size) {
-    size_t  adj_size       = 0;
-    size_t  extention_size = 0;
-    t_pool *blk_pool       = NULL;
-    void   *blk            = NULL;
+    size_t  adj_size = 0;
+    size_t  ext_size = 0;
+    t_pool *blk_pool = NULL;
+    void   *blk      = NULL;
 
     if (init_malloc() == -1) {
         return (NULL);
@@ -103,13 +103,13 @@ malloc(size_t size) {
     }
     if (blk == NULL) {
         if (blk_pool != NULL) {
-            extention_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
-            blk            = extend_pool(blk_pool, extention_size / WORD_SIZE);
+            ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
+            blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
             if (blk == (void *)-1) {
                 return (NULL);
             }
         } else {
-            return (new_anonymous_blk(adj_size));
+            return (new_orphean_blk(adj_size));
         }
     }
     place_blk(&blk_pool->head, blk, adj_size);
@@ -133,7 +133,7 @@ realloc(void *ptr, size_t size) {
     adj_size = ADJ_ALLOC_SIZE(size);
     blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
     if (blk_pool == NULL) {
-        blk_size = GET_ANON_SIZE(GET_HDR(ptr));
+        blk_size = GET_ORPHEAN_SIZE(GET_HDR(ptr));
     } else {
         blk_size = GET_SIZE(GET_HDR(ptr));
     }
@@ -158,7 +158,7 @@ free(void *ptr) {
     }
     blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
     if (blk_pool == NULL) {
-        return (free_anonymous_blk(ptr));
+        return (free_orphean_blk(ptr));
     }
     pthread_mutex_lock(&g_pools_mutex);
     PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
