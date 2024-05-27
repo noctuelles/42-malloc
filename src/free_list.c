@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 18:26:38 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/21 12:20:01 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 18:07:31 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,43 +39,43 @@ push_front_free_list(t_free_list **head, t_free_list *free_blk) {
  * @param free_blk The free block to delete from the free list.
  */
 void
-delone_free_list(t_free_list **head, t_free_list *free_blk) {
-    if (*head == free_blk) {
-        *head = free_blk->next;
-
-        if (*head) {
-            (*head)->prev = NULL;
-        }
-    } else {
-        free_blk->prev->next = free_blk->next;
-
-        if (free_blk->next) {
-            free_blk->next->prev = free_blk->prev;
-        }
+delone_free_list(t_free_list **head, t_free_list *del) {
+    if (*head == del) {
+        *head = del->next;
     }
+    if (del->next != NULL) {
+        del->next->prev = del->prev;
+    }
+    if (del->prev != NULL) {
+        del->prev->next = del->next;
+    }
+    del->prev = NULL;
+    del->next = NULL;
 }
 
 /**
  * @brief Move the values of a free block to another free block.
  *
  * @param head The head of the free list.
- * @param free_blk The free block to move the values to.
- * @param old_free_blk The free block to move the values from.
+ * @param dest_blk The free block to move the values to.
+ * @param src_blk The free block to move the values from.
  */
 void
-move_free_list_ptr(t_free_list **head, t_free_list *free_blk, t_free_list *old_free_blk) {
-    free_blk->prev = old_free_blk->prev;
-    free_blk->next = old_free_blk->next;
+move_free_list_ptr(t_free_list **head, t_free_list *dest_blk, t_free_list *src_blk) {
+    dest_blk->prev = src_blk->prev;
+    dest_blk->next = src_blk->next;
 
-    if (old_free_blk->prev != NULL) {
-        old_free_blk->prev->next = free_blk;
+    if (src_blk == *head) {
+        *head = dest_blk;
     }
-    if (old_free_blk->next != NULL) {
-        old_free_blk->next->prev = free_blk;
+    if (src_blk->prev != NULL) {
+        src_blk->prev->next = dest_blk;
     }
-    if (old_free_blk == *head) {
-        *head = free_blk;
+    if (src_blk->next != NULL) {
+        src_blk->next->prev = dest_blk;
     }
+    src_blk->prev = NULL;
+    src_blk->next = NULL;
 }
 
 /**

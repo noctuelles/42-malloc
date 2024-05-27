@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 15:21:16 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 16:20:53 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,36 +29,31 @@
 //  * @param xpnd_size double word aligned expand size.
 //  * @return void* NULL if blk cannot be expanded, blk otherwise.
 //  */
-// void *
-// expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
-//     void  *next_blk           = NEXT_BLK(blk);
-//     size_t blk_size           = GET_SIZE(GET_HDR(blk));
-//     size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
-//     size_t new_free_blk_size  = 0;
+void
+expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
+    void  *next_blk           = NEXT_BLK(blk);
+    size_t blk_size           = GET_SIZE(GET_HDR(blk));
+    size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
+    size_t new_free_blk_size  = 0;
 
-//     if (GET_ALLOC(GET_HDR(next_blk)) == FREE) {
-//         if (next_free_blk_size >= xpnd_size) {
-//             new_free_blk_size = next_free_blk_size - xpnd_size;
-//             if (new_free_blk_size < MIN_BLK_SIZE) {
-//                 delone_free_list(head, next_blk);
+    new_free_blk_size = next_free_blk_size - xpnd_size;
+    if (new_free_blk_size < MIN_BLK_SIZE) {
+        delone_free_list(head, next_blk);
 
-//                 PUT_WORD(GET_HDR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
-//                 PUT_WORD(GET_FTR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
-//             } else {
-//                 move_free_list_ptr(head, (t_free_list *)((t_byte *)next_blk + xpnd_size), next_blk);
-//                 PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
-//                 PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+        PUT_WORD(GET_HDR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
+        PUT_WORD(GET_FTR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
+    } else {
+        move_free_list_ptr(head, (t_free_list *)((t_byte *)next_blk + xpnd_size), next_blk);
 
-//                 next_blk = NEXT_BLK(blk);
+        PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
+        PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
 
-//                 PUT_WORD(GET_HDR(next_blk), PACK(new_free_blk_size, FREE));
-//                 PUT_WORD(GET_FTR(next_blk), PACK(new_free_blk_size, FREE));
-//             }
-//             return (blk);
-//         }
-//     }
-//     return (NULL);
-// }
+        next_blk = NEXT_BLK(blk);
+
+        PUT_WORD(GET_HDR(next_blk), PACK(new_free_blk_size, FREE));
+        PUT_WORD(GET_FTR(next_blk), PACK(new_free_blk_size, FREE));
+    }
+}
 
 // /**
 //  * @brief Try to shrink the block blk by shrk_size bytes. If the shrinking is not worth it, the block is left

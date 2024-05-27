@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/27 15:22:46 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/27 18:11:12 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,7 +45,7 @@ SRC_TEST=$(wildcard $(TEST_PATH)/*.c)
 CC=gcc
 LINK=gcc
 
-CFLAGS=-Wall -Werror -Wextra -lpthread
+CFLAGS=-Wall -Werror -Wextra
 DEBUG=-ggdb3
 
 PROJECT_INC=-I$(INC_PATH) -I.

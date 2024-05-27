@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 17:08:46 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 17:58:52 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,17 +78,13 @@ test_expand_blk_NEXT_FREE_BIG_ENOUGH() {
 
 void
 test_expand_blk_NEXT_FREE_NOT_BIG_ENOUGH() {
-    void       *next_blk = NULL;
-    t_free_list fake_prev_free_blk;
+    void *next_blk = NULL;
 
     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
 
-    next_blk                = NEXT_BLK(blk);
-    head                    = FREE_LIST_ELEM(next_blk);
-    fake_prev_free_blk.next = head;
-    head->prev              = &fake_prev_free_blk;
-    head->next              = NULL;
+    next_blk = NEXT_BLK(blk);
+    head     = FREE_LIST_ELEM(next_blk);
 
     PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE, FREE));
     PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE, FREE));
@@ -96,137 +92,10 @@ test_expand_blk_NEXT_FREE_NOT_BIG_ENOUGH() {
     expand_blk(&head, blk, XPND_SIZE);
 
     TEST_ASSERT_EQUAL_PTR(NULL, head);
-    TEST_ASSERT_EQUAL_PTR(NULL, fake_prev_free_blk.next);
+
+    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
+    TEST_ASSERT_EQUAL(MIN_BLK_SIZE * 2, GET_SIZE(GET_HDR(blk)));
 }
-
-// void
-// test_expand_blk_XPND_SIZE_TOO_BIG() {
-//     void        *next_blk   = NULL;
-//     const size_t xpand_size = MIN_BLK_SIZE * 5;
-
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-
-//     next_blk = NEXT_BLK(blk);
-
-//     PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE * 4, FREE));
-//     PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE * 4, FREE));
-//     head = FREE_LIST_ELEM(next_blk);
-
-//     TEST_ASSERT_EQUAL_PTR(NULL, expand_blk(&head, blk, xpand_size));
-// }
-
-// void
-// test_expand_blk_TAKE_ADJ_FREE_0() {
-//     void *next_blk = NULL;
-
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-
-//     next_blk = NEXT_BLK(blk);
-
-//     PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE, FREE));
-//     PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE, FREE));
-//     head = FREE_LIST_ELEM(next_blk);
-
-//     blk = expand_blk(&head, blk, MIN_BLK_SIZE / 2);
-
-//     TEST_ASSERT_EQUAL_PTR(NULL, head);
-
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE * 2, GET_SIZE(GET_HDR(blk)));
-// }
-
-// void
-// test_expand_blk_TAKE_ADJ_FREE_1() {
-//     void *next_blk = NULL;
-
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-
-//     next_blk = NEXT_BLK(blk);
-
-//     PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE, FREE));
-//     PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE, FREE));
-//     head = FREE_LIST_ELEM(next_blk);
-
-//     blk = expand_blk(&head, blk, MIN_BLK_SIZE);
-
-//     TEST_ASSERT_EQUAL_PTR(NULL, head);
-
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE * 2, GET_SIZE(GET_HDR(blk)));
-// }
-
-// void
-// test_shrink_blk_NO_COALESCING() {
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE * 4, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE * 4, ALLOCATED));
-//     PUT_WORD(GET_HDR(NEXT_BLK(blk)), PACK(0, 1));
-
-//     TEST_ASSERT_EQUAL_PTR(blk, shrink_blk(&head, blk, MIN_BLK_SIZE));
-//     TEST_ASSERT_EQUAL_PTR(NEXT_BLK(blk), head);
-
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE * 3, GET_SIZE(GET_HDR(blk)));
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE, GET_SIZE(GET_HDR(NEXT_BLK(blk))));
-
-//     TEST_ASSERT_EQUAL(1, free_list_len(head));
-// }
-
-// void
-// test_shrink_blk_WITH_COALESCING() {
-//     void *next_blk = NULL;
-
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE * 4, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE * 4, ALLOCATED));
-
-//     next_blk = NEXT_BLK(blk);
-
-//     PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE, FREE));
-//     PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE, FREE));
-
-//     head = FREE_LIST_ELEM(next_blk);
-
-//     next_blk = NEXT_BLK(next_blk);
-
-//     PUT_WORD(GET_HDR(next_blk), PACK(0, ALLOCATED));
-
-//     TEST_ASSERT_EQUAL_PTR(blk, shrink_blk(&head, blk, MIN_BLK_SIZE));
-//     TEST_ASSERT_EQUAL_PTR(NEXT_BLK(blk), head);
-
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE * 3, GET_SIZE(GET_HDR(blk)));
-//     TEST_ASSERT_EQUAL(MIN_BLK_SIZE * 2, GET_SIZE(GET_HDR(NEXT_BLK(blk))));
-
-//     TEST_ASSERT_EQUAL(1, free_list_len(head));
-// }
-
-// void
-// test_shrink_blk_SHRINK_TOO_SMALL() {
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_HDR(NEXT_BLK(blk)), PACK(0, 1));
-
-//     TEST_ASSERT_EQUAL_PTR(NULL, shrink_blk(&head, blk, 0));
-//     TEST_ASSERT_EQUAL_PTR(NULL, shrink_blk(&head, blk, 16));
-// }
-
-// void
-// test_shrink_blk_SHRINK_TOO_MUCH() {
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
-//     PUT_WORD(GET_HDR(NEXT_BLK(blk)), PACK(0, 1));
-
-//     TEST_ASSERT_EQUAL_PTR(NULL, shrink_blk(&head, blk, 0));
-//     TEST_ASSERT_EQUAL_PTR(NULL, shrink_blk(&head, blk, 8));
-// }
-
-// void
-// test_print_blk() {
-//     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, FREE));
-//     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, FREE));
-
-//     PUT_WORD((t_byte *)blk + 2 * DWORD_SIZE, 0xDEADBEEF);
-
-//     print_blk(blk);
-// }
 
 void
 test_place_blk_EXACT_SIZE() {

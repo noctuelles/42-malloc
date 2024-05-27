@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 15:19:32 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 16:22:10 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ void *fill_orphean_blk(uint8_t *blk, size_t size);
 void *new_orphean_blk(size_t size);
 void  free_orphean_blk(void *blk);
 
-void *expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
+void  expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
 void *shrink_blk(t_free_list **head, void *blk, size_t shrk_size);
 
 void *coalesce_blk(t_free_list **head, void *blk);
