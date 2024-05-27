@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 15:17:59 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:29:35 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ static int
 init_malloc() {
     static bool is_init = false;
     size_t      i       = 0;
-    size_t      j       = 0;
 
     if (is_init) {
         return (0);
@@ -70,10 +69,6 @@ init_malloc() {
     configure_pools_tunable();
     while (i < N_POOLS) {
         if (init_pool(&g_pools[i]) == -1) {
-            while (j < i) {
-                // TODO: release pool
-                j++;
-            }
             return (-1);
         }
         i++;
