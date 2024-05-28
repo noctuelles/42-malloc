@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 16:18:14 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 16:31:20 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ static t_pool g_pools[N_POOLS] = {{
                                   }};
 
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+
+/* ## MALLOC ## */
 
 static void
 configure_pools_tunable() {
@@ -82,9 +84,23 @@ init_malloc() {
 }
 
 void *
+malloc_normal(void *blk, t_pool *blk_pool, size_t adj_size) {
+    size_t ext_size = 0;
+
+    if (blk == NULL) {
+        ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
+        blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
+        if (blk == (void *)-1) {
+            return (NULL);
+        }
+    }
+    place_blk(&blk_pool->head, blk, adj_size);
+    return (blk);
+}
+
+void *
 malloc(size_t size) {
     size_t  adj_size = 0;
-    size_t  ext_size = 0;
     t_pool *blk_pool = NULL;
     void   *blk      = NULL;
 
@@ -100,16 +116,13 @@ malloc(size_t size) {
     if (blk_pool == NULL) {
         pthread_mutex_unlock(&g_lock);
         return (new_orphean_blk(adj_size));
-    }
-    if (blk == NULL) {
-        ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
-        blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
-        if (blk == (void *)-1) {
+    } else {
+        blk = malloc_normal(blk, blk_pool, adj_size);
+        if (blk == NULL) {
             pthread_mutex_unlock(&g_lock);
             return (new_orphean_blk(adj_size));
         }
     }
-    place_blk(&blk_pool->head, blk, adj_size);
     pthread_mutex_unlock(&g_lock);
     return (blk);
 }
