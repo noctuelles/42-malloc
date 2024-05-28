@@ -6,13 +6,14 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 12:44:14 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 15:56:55 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "block.h"
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,15 +22,55 @@
 
 #include "utils.h"
 
-// /**
-//  * @brief Tries to expand the block blk by xpnd_size bytes by using the next adjacent free block.
-//  *
-//  * @param head head of the free list of the pool of blk.
-//  * @param blk the block expansion block.
-//  * @param xpnd_size double word aligned expand size.
-//  * @return void* NULL if blk cannot be expanded, blk otherwise.
-//  */
-void
+/**
+ * @brief Check if the block blk can be expanded by xpnd_size bytes.
+ *
+ * @param blk The block to be checked.
+ * @param xpnd_size The size of the expansion.
+ * @param pool_max_alloc_size The maximum size of an allocation in the pool.
+ * @return true
+ * @return false
+ *
+ * @note Block expansion is not possible if :
+ * @note 1. The next block is allocated.
+ * @note 2. The resulting block size is greater than the pool max allocation size.
+ * @note 3. The resulting next block size is less than the minimum block size, and the expansion would result in a block
+ * size greater than the pool max allocation size.
+ */
+bool
+can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size) {
+    void  *next_blk          = NULL;
+    size_t blk_size          = 0;
+    size_t next_blk_size     = 0;
+    size_t new_next_blk_size = 0;
+
+    next_blk = NEXT_BLK(blk);
+    if (GET_ALLOC(GET_HDR(next_blk)) == ALLOCATED) {
+        return (false);
+    }
+    blk_size = GET_SIZE(GET_HDR(blk));
+    if (blk_size + xpnd_size > pool_max_alloc_size) {
+        return (false);
+    }
+    next_blk_size     = GET_SIZE(GET_HDR(next_blk));
+    new_next_blk_size = next_blk_size - xpnd_size;
+    if (new_next_blk_size < MIN_BLK_SIZE) {
+        if (blk_size + next_blk_size > pool_max_alloc_size) {
+            return (false);
+        }
+    }
+    return (true);
+}
+
+/**
+ * @brief Tries to expand the block blk by xpnd_size bytes by using the next adjacent free block.
+ *
+ * @param head head of the free list of the pool of blk.
+ * @param blk the block expansion block.
+ * @param xpnd_size double word aligned expand size.
+ * @return blk.
+ */
+void *
 expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
     void  *next_blk           = NEXT_BLK(blk);
     size_t blk_size           = GET_SIZE(GET_HDR(blk));
@@ -53,6 +94,8 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
         PUT_WORD(GET_HDR(next_blk), PACK(new_free_blk_size, FREE));
         PUT_WORD(GET_FTR(next_blk), PACK(new_free_blk_size, FREE));
     }
+
+    return (blk);
 }
 
 // /**

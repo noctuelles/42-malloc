@@ -6,13 +6,14 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 16:22:10 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 16:16:44 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "free_list.h"
@@ -128,10 +129,9 @@ High addr   +--------------+
 
 void *fill_orphean_blk(uint8_t *blk, size_t size);
 void *new_orphean_blk(size_t size);
-void  free_orphean_blk(void *blk);
 
-void  expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
-void *shrink_blk(t_free_list **head, void *blk, size_t shrk_size);
+bool  can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size);
+void *expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
 
 void *coalesce_blk(t_free_list **head, void *blk);
 void  place_blk(t_free_list **head, void *blk, const size_t adj_size);

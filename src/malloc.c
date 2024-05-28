@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 13:53:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 16:18:14 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,12 +114,49 @@ malloc(size_t size) {
     return (blk);
 }
 
+/* ## REALLOC ## */
+
+static void *
+new_malloc_cpy_old_data(void *old_ptr, size_t old_size, size_t new_size) {
+    void *new_ptr = NULL;
+
+    new_ptr = malloc(new_size);
+    if (new_ptr == NULL) {
+        return (NULL);
+    }
+    memcpy(new_ptr, old_ptr, old_size);
+    free(old_ptr);
+    return (new_ptr);
+}
+
+static void *
+realloc_orphean(void *blk, size_t adj_size) {
+    size_t blk_size = GET_ORPHEAN_SIZE(GET_HDR(blk));
+
+    if (adj_size < blk_size) {
+        return (blk);
+    }
+    if (adj_size > blk_size) {
+        return (new_malloc_cpy_old_data(blk, blk_size, adj_size));
+    }
+    return (blk);
+}
+
+static void *
+realloc_normal(void *blk, size_t adj_size) {
+    size_t blk_size = GET_SIZE(GET_HDR(blk));
+
+    if (adj_size < blk_size) {
+        return (blk);
+    }
+    if (adj_size > blk_size) {
+        return (new_malloc_cpy_old_data(blk, blk_size, adj_size));
+    }
+    return (blk);
+}
+
 void *
 realloc(void *ptr, size_t size) {
-    size_t  blk_size = 0;
-    size_t  adj_size = 0;
-    t_pool *blk_pool = NULL;
-
     if (ptr == NULL) {
         return (malloc(size));
     }
@@ -127,46 +164,47 @@ realloc(void *ptr, size_t size) {
         free(ptr);
         return (NULL);
     }
-    adj_size = ADJ_ALLOC_SIZE(size);
+    if (GET_ORPHEAN(GET_HDR(ptr))) {
+        ptr = realloc_orphean(ptr, ADJ_ALLOC_SIZE(size));
+    } else {
+        ptr = realloc_normal(ptr, ADJ_ALLOC_SIZE(size));
+    }
+    return (ptr);
+}
+
+/* ## FREE ## */
+
+static void
+free_orphean(void *blk) {
+    void *blk_header = GET_HDR(blk);
+    munmap(GET_ORPHEAN_BASE(blk_header), GET_ORPHEAN_SIZE(blk_header));
+}
+
+static void
+free_normal(void *blk) {
+    t_pool *blk_pool = NULL;
 
     pthread_mutex_lock(&g_lock);
-    blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
+    blk_pool = find_blk_in_pools(g_pools, N_POOLS, blk);
+    PUT_WORD(GET_HDR(blk), PACK(GET_SIZE(GET_HDR(blk)), FREE));
+    PUT_WORD(GET_FTR(blk), PACK(GET_SIZE(GET_HDR(blk)), FREE));
+    coalesce_blk(&blk_pool->head, blk);
     pthread_mutex_unlock(&g_lock);
-
-    if (blk_pool == NULL) {
-        blk_size = GET_ORPHEAN_SIZE(GET_HDR(ptr));
-    } else {
-        blk_size = GET_SIZE(GET_HDR(ptr));
-    }
-    (void)blk_pool;
-    if (adj_size < blk_size) {
-        return (ptr);
-    }
-    void *new_ptr = malloc(adj_size);
-    if (!new_ptr) {
-        return (NULL);
-    }
-    memcpy(new_ptr, ptr, blk_size);
-    return (new_ptr);
 }
 
 void
 free(void *ptr) {
-    t_pool *blk_pool = NULL;
-
     if (ptr == NULL) {
         return;
     }
     if (GET_ORPHEAN(GET_HDR(ptr))) {
-        return (free_orphean_blk(ptr));
+        return (free_orphean(ptr));
+    } else {
+        return (free_normal(ptr));
     }
-    pthread_mutex_lock(&g_lock);
-    blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
-    PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-    PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-    coalesce_blk(&blk_pool->head, ptr);
-    pthread_mutex_unlock(&g_lock);
 }
+
+/* ## CALLOC ## */
 
 void *
 calloc(size_t nmemb, size_t size) {
@@ -181,6 +219,8 @@ calloc(size_t nmemb, size_t size) {
     bzero(ptr, total_size);
     return (ptr);
 }
+
+/* ## Utils ## */
 
 void
 show_alloc_mem() {

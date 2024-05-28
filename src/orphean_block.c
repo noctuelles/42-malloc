@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/27 15:16:04 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 13:51:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 16:16:37 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,4 @@ new_orphean_blk(size_t size) {
         return (NULL);
     }
     return (fill_orphean_blk(blk, size));
-}
-
-void
-free_orphean_blk(void *blk) {
-    void *blk_header = GET_HDR(blk);
-    munmap(GET_ORPHEAN_BASE(blk_header), GET_ORPHEAN_SIZE(blk_header));
 }
