@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/27 15:16:04 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 15:19:01 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 13:51:40 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ fill_orphean_blk(uint8_t *blk, size_t size) {
 /**
  * @brief Allocate a new anonymous block. An anonymous block doesn't belong to any pool.
  *
- * @param size size of the block, aligned to a double word boundary.
+ * @param size size of the block, aligned to a quad word boundary.
  * @return void* pointer to the allocated bloc.
  */
 void *

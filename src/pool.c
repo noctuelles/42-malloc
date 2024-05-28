@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 17:24:54 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 13:59:53 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,13 +73,18 @@ find_blk_in_pools(t_pool *pools, size_t n, void *blk) {
 }
 
 /**
- * @brief
+ * @brief Find a free block in the pools that can fit the adjusted size.
  *
- * @param pools
- * @param n
- * @param adj_size
- * @param blk_pool
- * @return void*
+ * @param pools Array of pools.
+ * @param n Number of pools.
+ * @param adj_size The adjusted size to fit.
+ * @param blk_pool The pool that contains the free block.
+ * @return void* NULL is no fit is found, a pointer to the free block otherwise.
+ *
+ * @note blk_pool is a result parameter. Do note that the function can return NULL, but blk_pool might be set if the
+ * pool just needs an extension.
+ * If blk_pool is NULL, then the size is too big to fit any pool, and needs an orphean
+ * block.
  */
 void *
 find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_pool) {
@@ -114,6 +119,12 @@ extend_pool(t_pool *pool, size_t words) {
     return (free_blk);
 }
 
+/**
+ * @brief Initialize a pool : set up the initial prologue and epilogue blocks.
+ *
+ * @param pool The pool to initialize.
+ * @return int 0 on success, -1 on failure.
+ */
 int
 init_pool(t_pool *pool) {
     t_byte *heap = NULL;
@@ -140,6 +151,14 @@ init_pool(t_pool *pool) {
     return (0);
 }
 
+/**
+ * @brief Print the pool.
+ *
+ * @param pool The pool to print.
+ * @param opts Options to print.
+ *
+ * @note Available options are PRINT_FREE and PRINT_ALLOC.
+ */
 void
 print_pool(const t_pool *pool, int opts) {
     void        *blk      = pool->beginning;
@@ -167,6 +186,14 @@ print_pool(const t_pool *pool, int opts) {
     fflush(stdout);
 }
 
+/**
+ * @brief Print the pool in a pretty way, with an ASCII representation of the blocks.
+ *
+ * @param pool The pool to print.
+ * @param opts Options to print.
+ *
+ * @note Available options are PRINT_FREE and PRINT_ALLOC.
+ */
 void
 print_pretty_pool(const t_pool *pool, int opts) {
     void  *blk   = pool->beginning;
@@ -175,9 +202,9 @@ print_pretty_pool(const t_pool *pool, int opts) {
     printf("## Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
     while (GET_SIZE(GET_HDR(blk)) != 0) {
         alloc = GET_ALLOC(GET_HDR(blk));
-        if (alloc && opts & PRINT_ALLOC) {
+        if (alloc && (opts & PRINT_ALLOC)) {
             print_blk(blk);
-        } else if (!alloc && opts & PRINT_FREE) {
+        } else if (!alloc && (opts & PRINT_FREE)) {
             print_blk(blk);
         }
         blk = NEXT_BLK(blk);

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 12:46:17 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 13:53:07 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,17 +65,18 @@ init_malloc() {
     size_t      i       = 0;
 
     if (is_init) {
-        goto ret;
+        pthread_mutex_unlock(&g_lock);
+        return (0);
     }
     configure_pools_tunable();
     while (i < N_POOLS) {
         if (init_pool(&g_pools[i]) == -1) {
+            pthread_mutex_unlock(&g_lock);
             return (-1);
         }
         i++;
     }
     is_init = true;
-ret:
     pthread_mutex_unlock(&g_lock);
     return (0);
 }
@@ -96,18 +97,16 @@ malloc(size_t size) {
     adj_size = ADJ_ALLOC_SIZE(size);
     pthread_mutex_lock(&g_lock);
     blk = find_fit_in_pools(g_pools, N_POOLS, adj_size, &blk_pool);
+    if (blk_pool == NULL) {
+        pthread_mutex_unlock(&g_lock);
+        return (new_orphean_blk(adj_size));
+    }
     if (blk == NULL) {
-        if (blk_pool != NULL) {
-            ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
-            blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
-            if (blk == (void *)-1) {
-                pthread_mutex_unlock(&g_lock);
-                return (NULL);
-            }
-        } else {
-            blk = new_orphean_blk(adj_size);
+        ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
+        blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
+        if (blk == (void *)-1) {
             pthread_mutex_unlock(&g_lock);
-            return (blk);
+            return (new_orphean_blk(adj_size));
         }
     }
     place_blk(&blk_pool->head, blk, adj_size);
@@ -129,9 +128,11 @@ realloc(void *ptr, size_t size) {
         return (NULL);
     }
     adj_size = ADJ_ALLOC_SIZE(size);
+
     pthread_mutex_lock(&g_lock);
     blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
     pthread_mutex_unlock(&g_lock);
+
     if (blk_pool == NULL) {
         blk_size = GET_ORPHEAN_SIZE(GET_HDR(ptr));
     } else {
@@ -156,23 +157,24 @@ free(void *ptr) {
     if (ptr == NULL) {
         return;
     }
+    if (GET_ORPHEAN(GET_HDR(ptr))) {
+        return (free_orphean_blk(ptr));
+    }
     pthread_mutex_lock(&g_lock);
     blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
-    if (blk_pool == NULL) {
-        free_orphean_blk(ptr);
-    } else {
-        PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-        PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-        coalesce_blk(&blk_pool->head, ptr);
-    }
+    PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+    PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+    coalesce_blk(&blk_pool->head, ptr);
     pthread_mutex_unlock(&g_lock);
 }
 
 void *
 calloc(size_t nmemb, size_t size) {
-    size_t total_size = nmemb * size;
-    void  *ptr        = malloc(total_size);
+    size_t total_size = 0;
+    void  *ptr        = NULL;
 
+    total_size = nmemb * size;
+    ptr        = malloc(total_size);
     if (ptr == NULL) {
         return (NULL);
     }

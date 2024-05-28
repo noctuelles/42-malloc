@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 15:11:36 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 17:20:39 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 14:02:01 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #define POOL_ONE_MIN_ALLOC_SIZE 1
 #define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)
 
+/* Adjust the size to a quad word boundary, while keeping the minimum block size of 32 bytes. */
 #define ADJ_ALLOC_SIZE(size) (QWORD_SIZE * (((size) + (MIN_BLK_SIZE - 1)) / QWORD_SIZE))
 
 void *malloc(size_t size);
