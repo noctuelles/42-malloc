@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 13:53:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/28 17:04:31 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,16 +128,14 @@ realloc(void *ptr, size_t size) {
         return (NULL);
     }
     adj_size = ADJ_ALLOC_SIZE(size);
-
     pthread_mutex_lock(&g_lock);
     blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
-    pthread_mutex_unlock(&g_lock);
-
     if (blk_pool == NULL) {
         blk_size = GET_ORPHEAN_SIZE(GET_HDR(ptr));
     } else {
         blk_size = GET_SIZE(GET_HDR(ptr));
     }
+    pthread_mutex_unlock(&g_lock);
     (void)blk_pool;
     if (adj_size < blk_size) {
         return (ptr);
@@ -146,7 +144,9 @@ realloc(void *ptr, size_t size) {
     if (!new_ptr) {
         return (NULL);
     }
+    pthread_mutex_lock(&g_lock);
     memcpy(new_ptr, ptr, blk_size);
+    pthread_mutex_unlock(&g_lock);
     return (new_ptr);
 }
 
@@ -157,14 +157,16 @@ free(void *ptr) {
     if (ptr == NULL) {
         return;
     }
-    if (GET_ORPHEAN(GET_HDR(ptr))) {
-        return (free_orphean_blk(ptr));
-    }
     pthread_mutex_lock(&g_lock);
-    blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
-    PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-    PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-    coalesce_blk(&blk_pool->head, ptr);
+    if (GET_ORPHEAN(GET_HDR(ptr))) {
+        free_orphean_blk(ptr);
+    } else {
+        blk_pool = find_blk_in_pools(g_pools, N_POOLS, ptr);
+        assert(blk_pool != NULL);
+        PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+        PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+        coalesce_blk(&blk_pool->head, ptr);
+    }
     pthread_mutex_unlock(&g_lock);
 }
 
