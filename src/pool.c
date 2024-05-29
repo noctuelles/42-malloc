@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 13:59:53 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 15:19:55 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,14 @@ find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_p
     return (NULL);
 }
 
+/**
+ * @brief
+ *
+ * @param pool
+ * @param words
+ * @return void* NULL on failure, a pointer to the free block otherwise.
+
+ */
 void *
 extend_pool(t_pool *pool, size_t words) {
     t_byte *heap_brk = NULL;
