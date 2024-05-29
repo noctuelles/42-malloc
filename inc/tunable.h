@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 17:09:53 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 14:47:50 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 17:39:20 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #define POOL_CHUNK_EXTENSION (1U << 15)
 
 #define FT_POOL_ONE_MAX_ALLOC_SIZE_STR "FT_POOL_ONE_MAX_ALLOC_SIZE"
-#define POOL_ONE_MAX_ALLOC_SIZE (1 << 7)
+#define POOL_ONE_MAX_ALLOC_SIZE (1 << 8)
 
 #define FT_POOL_TWO_MAX_ALLOC_SIZE_STR "FT_POOL_TWO_MAX_ALLOC_SIZE"
 #define POOL_TWO_MAX_ALLOC_SIZE (1 << 15)

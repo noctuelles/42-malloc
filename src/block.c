@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 15:56:55 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 17:37:38 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,10 @@
  */
 bool
 can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size) {
-    void  *next_blk          = NULL;
-    size_t blk_size          = 0;
-    size_t next_blk_size     = 0;
-    size_t new_next_blk_size = 0;
+    void  *next_blk           = NULL;
+    size_t blk_size           = 0;
+    size_t next_free_blk_size = 0;
+    size_t new_next_blk_size  = 0;
 
     next_blk = NEXT_BLK(blk);
     if (GET_ALLOC(GET_HDR(next_blk)) == ALLOCATED) {
@@ -52,10 +52,13 @@ can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size) {
     if (blk_size + xpnd_size > pool_max_alloc_size) {
         return (false);
     }
-    next_blk_size     = GET_SIZE(GET_HDR(next_blk));
-    new_next_blk_size = next_blk_size - xpnd_size;
+    next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
+    if (next_free_blk_size < xpnd_size) {
+        return (false);
+    }
+    new_next_blk_size = next_free_blk_size - xpnd_size;
     if (new_next_blk_size < MIN_BLK_SIZE) {
-        if (blk_size + next_blk_size > pool_max_alloc_size) {
+        if (blk_size + next_free_blk_size > pool_max_alloc_size) {
             return (false);
         }
     }

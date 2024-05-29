@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 16:24:29 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 17:22:30 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,15 +47,17 @@ thread_routine_wrapper(void *parg) {
     return (NULL);
 }
 
-static pthread_mutex_t lock       = PTHREAD_MUTEX_INITIALIZER;
-static size_t          nbr_allocs = 0;
-static size_t          nbr_free   = 0;
+static pthread_mutex_t lock         = PTHREAD_MUTEX_INITIALIZER;
+static size_t          nbr_allocs   = 0;
+static size_t          nbr_free     = 0;
+static size_t          nbr_reallocs = 0;
 
 void
 setUp() {
     srand(time(NULL));
-    nbr_allocs = 0;
-    nbr_free   = 0;
+    nbr_allocs   = 0;
+    nbr_free     = 0;
+    nbr_reallocs = 0;
 }
 
 void
@@ -66,6 +68,8 @@ tearDown() {
     snprintf(buffer, 256, "Number of allocations : %zu", nbr_allocs);
     TEST_MESSAGE(buffer);
     snprintf(buffer, 256, "Number of frees : %zu", nbr_free);
+    TEST_MESSAGE(buffer);
+    snprintf(buffer, 256, "Number of reallocations : %zu", nbr_reallocs);
     TEST_MESSAGE(buffer);
 }
 
@@ -86,11 +90,13 @@ test_malloc_free_RANDOM() {
 
 #define BUFFER_SIZE 1000
 #define RUN_TIME_IN_SEC 20
+#define REALLOC_RATE 10
 #define MIN_ALLOC_SIZE POOL_ONE_MIN_ALLOC_SIZE
 #define MAX_ALLOC_SIZE POOL_TWO_MAX_ALLOC_SIZE
 
     void           *ptrs[BUFFER_SIZE] = {0};
     char            buffer[1 << 10]   = {0};
+    uint8_t         should_realloc    = REALLOC_RATE;
     struct timespec start, sample;
     size_t          i          = 0;
     size_t          alloc_size = 0;
@@ -103,12 +109,27 @@ test_malloc_free_RANDOM() {
         }
         i = rand_between(0, BUFFER_SIZE);
         if (ptrs[i] != NULL) {
-            free(ptrs[i]);
-            ptrs[i] = NULL;
+            should_realloc--;
+            if (should_realloc == 0) {
+                alloc_size = rand_between(MIN_ALLOC_SIZE, MAX_ALLOC_SIZE);
+                ptrs[i]    = realloc(ptrs[i], alloc_size);
+                if (ptrs[i] == NULL) {
+                    TEST_FAIL_MESSAGE("Could not reallocate memory");
+                }
+                memrand(ptrs[i], alloc_size);
+                TEST_ASSERT_TRUE((uintptr_t)ptrs[i] % 16 == 0);
+                pthread_mutex_lock(&lock);
+                nbr_reallocs++;
+                pthread_mutex_unlock(&lock);
+                should_realloc = REALLOC_RATE;
+            } else {
+                free(ptrs[i]);
+                ptrs[i] = NULL;
 
-            pthread_mutex_lock(&lock);
-            nbr_free++;
-            pthread_mutex_unlock(&lock);
+                pthread_mutex_lock(&lock);
+                nbr_free++;
+                pthread_mutex_unlock(&lock);
+            }
         } else {
             alloc_size = rand_between(MIN_ALLOC_SIZE, MAX_ALLOC_SIZE);
             ptrs[i]    = malloc(alloc_size);
@@ -158,9 +179,15 @@ test_malloc_free_RANDOM_MULTITHREADING() {
 #undef NBR_THREADS
 }
 
+void
+test_SANDBOX() {
+    return;
+}
+
 int
 main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_SANDBOX);
     RUN_TEST(test_malloc_free_RANDOM);
     RUN_TEST(test_malloc_free_RANDOM_MULTITHREADING);
     return UNITY_END();

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 16:16:44 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 17:01:26 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,7 @@ High addr   +--------------+
 
 void *fill_orphean_blk(uint8_t *blk, size_t size);
 void *new_orphean_blk(size_t size);
+void  free_orphean_blk(void *ptr);
 
 bool  can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size);
 void *expand_blk(t_free_list **head, void *blk, size_t xpnd_size);
