@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 16:23:09 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 16:24:29 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,6 @@
 #include "unity.h"
 
 /* ## UTILS ## */
-
-static unsigned long
-rand_size() {
-    return (1UL << (rand() % 25));
-}
 
 static size_t
 rand_between(size_t min, size_t max) {
@@ -73,8 +68,6 @@ tearDown() {
     snprintf(buffer, 256, "Number of frees : %zu", nbr_free);
     TEST_MESSAGE(buffer);
 }
-
-// Generate random long unsigned integer between 1 << 0 and 1 << 29
 
 void
 test_ADJ_ALLOC_SIZE() {
