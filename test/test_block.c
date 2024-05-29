@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 17:58:52 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 14:53:19 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,24 @@ void
 tearDown() {
     bzero(fake_heap, FAKE_HEAP_SIZE);
     head = NULL;
+}
+
+void
+test_can_expand_blk_ORPHEAN() {}
+
+void
+test_can_expand_blk_TOO_BIG_TO_FIT_IN_POOL() {
+    void *next_blk = NULL;
+
+    PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+    PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
+
+    next_blk = NEXT_BLK(blk);
+
+    PUT_WORD(GET_HDR(next_blk), PACK(MIN_BLK_SIZE, FREE));
+    PUT_WORD(GET_FTR(next_blk), PACK(MIN_BLK_SIZE, FREE));
+
+    // TEST_ASSERT_FALSE(can_expand_blk(blk, XPND_SIZE, MIN_BLK_SIZE));
 }
 
 void
@@ -304,6 +322,9 @@ test_fill_orphean_blk() {
 int
 main(void) {
     UNITY_BEGIN();
+
+    RUN_TEST(test_can_expand_blk_ORPHEAN);
+    RUN_TEST(test_can_expand_blk_TOO_BIG_TO_FIT_IN_POOL);
 
     RUN_TEST(test_expand_blk_NEXT_FREE_BIG_ENOUGH);
     RUN_TEST(test_expand_blk_NEXT_FREE_NOT_BIG_ENOUGH);
