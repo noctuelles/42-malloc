@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 17:15:52 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 23:22:52 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,9 @@ realloc_non_orphean(void *ptr, size_t adj_size) {
         return (NULL);
     }
     if (adj_size < blk_size) {
-        return (new_malloc_cpy_old_data(ptr, blk_size, adj_size));
+        if (can_shrink_blk(ptr, blk_size - adj_size, blk_pool->min_alloc_size)) {
+            return (shrink_blk(&blk_pool->head, ptr, blk_size - adj_size));
+        }
     } else if (adj_size > blk_size) {
         xpnd_size = adj_size - blk_size;
         if (can_expand_blk(ptr, xpnd_size, blk_pool->max_alloc_size)) {

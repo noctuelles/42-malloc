@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 17:37:38 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/29 23:20:28 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,37 +101,46 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
     return (blk);
 }
 
-// /**
-//  * @brief Try to shrink the block blk by shrk_size bytes. If the shrinking is not worth it, the block is left
-//  untouched.
-//  *
-//  * @param head head of the free list of the pool of blk.
-//  * @param blk block to be shrunk.
-//  * @param shrk_size double word aligned shrink size.
-//  * @return void* NULL if blk cannot be shrunk, blk otherwise.
-//  */
-// void *
-// shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
-//     size_t blk_size           = GET_SIZE(GET_HDR(blk));
-//     size_t new_blk_size       = blk_size - shrk_size;
-//     void  *created_free_block = NULL;
+bool
+can_shrink_blk(void *blk, size_t shrk_size, size_t pool_min_alloc_size) {
+    size_t blk_size     = GET_SIZE(GET_HDR(blk));
+    size_t new_blk_size = blk_size - shrk_size;
 
-//     if (new_blk_size < MIN_BLK_SIZE || shrk_size < MIN_BLK_SIZE) {
-//         return (NULL);
-//     }
+    if (shrk_size < MIN_BLK_SIZE) {
+        return (false);
+    }
+    if (new_blk_size < pool_min_alloc_size) {
+        return (false);
+    }
+    return (true);
+}
 
-//     PUT_WORD(GET_HDR(blk), PACK(new_blk_size, ALLOCATED));
-//     PUT_WORD(GET_FTR(blk), PACK(new_blk_size, ALLOCATED));
+/**
+ * @brief Shrink the block blk by shrk_size bytes.
+ *
+ * @param head head of the free list of the pool of blk.
+ * @param blk block to be shrunk.
+ * @param shrk_size double word aligned shrink size.
+ * @return void* NULL if blk cannot be shrunk, blk otherwise.
+ */
+void *
+shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
+    size_t blk_size           = GET_SIZE(GET_HDR(blk));
+    size_t new_blk_size       = blk_size - shrk_size;
+    void  *created_free_block = NULL;
 
-//     created_free_block = NEXT_BLK(blk);
+    PUT_WORD(GET_HDR(blk), PACK(new_blk_size, ALLOCATED));
+    PUT_WORD(GET_FTR(blk), PACK(new_blk_size, ALLOCATED));
 
-//     PUT_WORD(GET_HDR(created_free_block), PACK(shrk_size, FREE));
-//     PUT_WORD(GET_FTR(created_free_block), PACK(shrk_size, FREE));
+    created_free_block = NEXT_BLK(blk);
 
-//     coalesce_blk(head, created_free_block);
+    PUT_WORD(GET_HDR(created_free_block), PACK(shrk_size, FREE));
+    PUT_WORD(GET_FTR(created_free_block), PACK(shrk_size, FREE));
 
-//     return (blk);
-// }
+    coalesce_blk(head, created_free_block);
+
+    return (blk);
+}
 
 /**
  * @brief Coalesce adjacent free block around blk.
