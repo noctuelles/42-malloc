@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 20:38:56 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/23 17:22:41 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/30 16:27:15 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@
  */
 static void *
 init_heap(t_heap *heap) {
-    heap->base = mmap(NULL, get_tunable(FT_HEAP_RESERVE_SIZE_STR, HEAP_RESERVE_SIZE), PROT_NONE, MAP_PRV_ANON, -1, 0);
+    const size_t reserve_size = align_on_page_size_boundary(get_tunable(FT_HEAP_RESERVE_SIZE_STR, HEAP_RESERVE_SIZE));
+
+    heap->base = mmap(NULL, reserve_size, PROT_NONE, MAP_PRV_ANON, -1, 0);
     if (heap->base == MAP_FAILED) {
         return ((void *)-1);
     }

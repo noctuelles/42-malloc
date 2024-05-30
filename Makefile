@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/30 16:00:36 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/30 16:24:33 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -93,7 +93,7 @@ $(BUILD_PATH)/test_%.$(TARGET_EXTENSION): $(OBJS_PATH)/test_%.o $(OBJS_PATH)/uni
 
 # Rule to compile the files of the project
 $(OBJS_PATH)/%.o:: $(SRC_PATH)/%.c | $(OBJS_PATH)
-	$(CC) -fPIC $(CFLAGS) $(PROJECT_INC) -c $< -o $@
+	$(CC) $(DEBUG) -fPIC $(CFLAGS) $(PROJECT_INC) -c $< -o $@
 
 # Rule to compile the Unity Framework
 $(OBJS_PATH)/%.o:: $(UNITY_PATH)/%.c $(UNITY_PATH)/%.h | $(OBJS_PATH)
