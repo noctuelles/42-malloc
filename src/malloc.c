@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 23:22:52 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/30 15:35:34 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include "pool.h"
 #include "pthread.h"
 #include "tunable.h"
+#include "utils.h"
 
 static t_pool g_pools[N_POOLS] = {{
                                       .min_alloc_size = 0,
@@ -150,16 +151,21 @@ free(void *ptr) {
 
 static void *
 new_malloc_cpy_old_data(void *old_ptr, size_t old_size, size_t new_size) {
-    void        *new_ptr = NULL;
-    const size_t ncpy    = new_size < old_size ? new_size : old_size;
+    void  *new_ptr = NULL;
+    size_t ncpy    = 0;
 
     new_ptr = malloc_block(new_size);
     if (new_ptr == NULL) {
         return (NULL);
     }
+    ncpy = MIN(new_size, old_size);
+    if (GET_ORPHEAN(GET_HDR(old_ptr))) {
+        ncpy -= ORPHEAN_BLK_MISC_SIZE;
+    } else {
+        ncpy -= BLK_MISC_SIZE;
+    }
     memcpy(new_ptr, old_ptr, ncpy);
     free_block(old_ptr);
-
     return (new_ptr);
 }
 

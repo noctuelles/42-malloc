@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/27 15:16:04 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 17:01:01 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/30 15:35:14 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ fill_orphean_blk(uint8_t *blk, size_t size) {
  */
 void *
 new_orphean_blk(size_t size) {
-    size        = size + 2 * DWORD_SIZE;
+    size        = size + ORPHEAN_BLK_MISC_SIZE;
     size        = align_on_page_size_boundary(size);
     t_byte *blk = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 

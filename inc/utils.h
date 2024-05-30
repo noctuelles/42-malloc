@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 16:36:49 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/22 14:49:56 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/30 15:30:51 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef uint64_t t_dword;
 #define DWORD_SIZE sizeof(t_dword)
 #define QWORD_SIZE (DWORD_SIZE * 2)
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 size_t align_on_page_size_boundary(size_t initial_size);
 size_t align_on_dword_boundary(size_t initial_size);

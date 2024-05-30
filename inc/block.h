@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 23:21:14 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/30 15:34:54 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,9 @@ High addr   +--------------+
 #define ORPHEAN (1U << 1)
 #define FREE 0U
 
-#define BLK_PAD_SIZE (2 * WORD_SIZE)
-#define BLK_HDR_FTR_SIZE (2 * WORD_SIZE)
+#define BLK_MISC_SIZE (2 * WORD_SIZE)
+#define ORPHEAN_BLK_MISC_SIZE (2 * DWORD_SIZE)
+
 #define BLK_FREE_LIST_ELEM_SIZE (2 * DWORD_SIZE)
 
 #define MIN_BLK_SIZE (4 * DWORD_SIZE)
