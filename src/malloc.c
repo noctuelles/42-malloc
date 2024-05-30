@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/30 15:35:34 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/30 16:04:19 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,6 +256,17 @@ calloc(size_t nmemb, size_t size) {
     bzero(ptr, total_size);
     pthread_mutex_unlock(&g_lock);
     return (ptr);
+}
+
+size_t
+malloc_usable_size(void *ptr) {
+    if (ptr == NULL) {
+        return (0);
+    }
+    if (GET_ORPHEAN(GET_HDR(ptr))) {
+        return (GET_ORPHEAN_SIZE(GET_HDR(ptr)));
+    }
+    return (GET_SIZE(GET_HDR(ptr)));
 }
 
 /* ## Utils ## */
