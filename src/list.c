@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 18:26:38 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 14:07:07 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 16:44:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,10 @@ push_front_list(t_list **head, t_list *elem) {
 
 void
 delone_list(t_list **head, t_list *del) {
+    if (del == NULL) {
+        return;
+    }
+
     if (*head == del) {
         *head = del->next;
     }

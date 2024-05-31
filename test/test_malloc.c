@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 17:22:30 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 17:02:23 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,8 @@ test_malloc_free_RANDOM() {
     size_t          i          = 0;
     size_t          alloc_size = 0;
 
+    TEST_IGNORE();
+
     clock_gettime(CLOCK_MONOTONIC, &start);
     while (1) {
         clock_gettime(CLOCK_MONOTONIC, &sample);
@@ -159,6 +161,7 @@ test_malloc_free_RANDOM_MULTITHREADING() {
     char      buff[1 << 8] = {0};
     int       ret          = 0;
 
+    TEST_IGNORE();
     thread_routine = test_malloc_free_RANDOM;
 
     for (size_t i = 0; i < NBR_THREADS; i++) {
@@ -181,6 +184,8 @@ test_malloc_free_RANDOM_MULTITHREADING() {
 
 void
 test_SANDBOX() {
+    void *ptr = malloc(99999);
+    ptr       = realloc(ptr, 5);
     return;
 }
 

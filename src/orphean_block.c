@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/27 15:16:04 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 15:28:31 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 16:39:30 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ new_orphean_blk(t_list **head, size_t size) {
     PUT_WORD(blk + (1 * WORD_SIZE) + (3 * DWORD_SIZE), PACK(0, ALLOCATED | ORPHEAN));
 
     blk += ORPHEAN_BLK_MISC_SIZE;
+
     push_front_list(head, GET_ORPHEAN_ELEM(blk));
 
     return (blk);

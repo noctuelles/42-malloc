@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 15:11:36 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 14:09:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 15:42:11 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 
 #include "pool.h"
 
-#define N_POOLS 2
+#define N_POOLS 3
+#define ORPHEAN_POOL_IDX 2
 
 #define POOL_ONE_MIN_ALLOC_SIZE 1
 #define POOL_TWO_MIN_ALLOC_SIZE (POOL_ONE_MAX_ALLOC_SIZE + 1)

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 14:06:39 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 16:02:58 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ find_fit_in_pool(t_pool *pool, const size_t adj_size) {
     t_list *blk      = pool->head;
     size_t  blk_size = 0;
 
+    assert(pool->type == NORMAL_POOL);
     while (blk != NULL) {
         blk_size = GET_SIZE(GET_HDR(blk));
         if (blk_size >= adj_size) {
@@ -60,7 +61,7 @@ find_fit_in_pool(t_pool *pool, const size_t adj_size) {
  */
 t_pool *
 find_blk_in_pools(t_pool *pools, size_t n, void *blk) {
-    size_t blk_size = GET_SIZE(GET_HDR(blk));
+    size_t blk_size = GET_ORPHEAN(GET_HDR(blk)) ? GET_ORPHEAN_SIZE(blk) : GET_SIZE(GET_HDR(blk));
     size_t i        = 0;
 
     while (i < n) {
@@ -72,32 +73,16 @@ find_blk_in_pools(t_pool *pools, size_t n, void *blk) {
     return (NULL);
 }
 
-/**
- * @brief Find a free block in the pools that can fit the adjusted size.
- *
- * @param pools Array of pools.
- * @param n Number of pools.
- * @param adj_size The adjusted size to fit.
- * @param blk_pool The pool that contains the free block.
- * @return void* NULL is no fit is found, a pointer to the free block otherwise.
- *
- * @note blk_pool is a result parameter. Do note that the function can return NULL, but blk_pool might be set if the
- * pool just needs an extension.
- * If blk_pool is NULL, then the size is too big to fit any pool, and needs an orphean
- * block.
- */
-void *
-find_fit_in_pools(t_pool *pools, size_t n, const size_t adj_size, t_pool **blk_pool) {
+t_pool *
+find_appropriate_pool_for_alloc(t_pool *pools, size_t n, size_t size) {
     size_t i = 0;
 
     while (i < n) {
-        *blk_pool = &pools[i];
-        if (adj_size >= (*blk_pool)->min_alloc_size && adj_size <= (*blk_pool)->max_alloc_size) {
-            return (find_fit_in_pool(*blk_pool, adj_size));
+        if (size >= pools[i].min_alloc_size && size <= pools[i].max_alloc_size) {
+            return (&pools[i]);
         }
         i++;
     }
-    *blk_pool = NULL;
     return (NULL);
 }
 
@@ -115,6 +100,9 @@ extend_pool(t_pool *pool, size_t words) {
     void   *free_blk = NULL;
     size_t  bytes    = 0;
 
+    if (pool->type == ORPHEAN_POOL) {
+        return (NULL);
+    }
     bytes    = (words % 4) ? (words + 4 - (words % 4)) * WORD_SIZE : words * WORD_SIZE;
     heap_brk = sbrk_heap(&pool->heap, bytes);
     if (heap_brk == (void *)-1) {
@@ -137,6 +125,9 @@ int
 init_pool(t_pool *pool) {
     t_byte *heap = NULL;
 
+    if (pool->type == ORPHEAN_POOL) {
+        return (0);
+    }
     heap = sbrk_heap(&pool->heap, 8 * WORD_SIZE);
     if (heap == (void *)-1) {
         return (-1);
@@ -159,21 +150,32 @@ init_pool(t_pool *pool) {
     return (0);
 }
 
-/**
- * @brief Print the pool.
- *
- * @param pool The pool to print.
- * @param opts Options to print.
- *
- * @note Available options are PRINT_FREE and PRINT_ALLOC.
- */
-void
-print_pool(const t_pool *pool, int opts) {
-    void   *blk      = pool->beginning;
+/* Pool Printing */
+
+static void
+print_pool_orphean(const t_pool *pool, int opts) {
+    t_list *elem = NULL;
+
+    printf("## Orphean Pool [%lu;%lu] ##\n", pool->min_alloc_size, pool->max_alloc_size);
+    elem = pool->head;
+    while (elem != NULL) {
+        if (opts & PRINT_ALLOC) {
+            printf("\tAllocated Block %p : %lu bytes.\n", (t_byte *)(elem) + sizeof(t_list) + WORD_SIZE,
+                   *(size_t *)((t_byte *)elem - DWORD_SIZE));
+        }
+        elem = elem->next;
+    }
+}
+
+static void
+print_pool_normal(const t_pool *pool, int opts) {
     t_list *free_blk = NULL;
+    void   *blk      = pool->beginning;
     size_t  alloc    = 0;
 
     printf("## Pool [%lu;%lu] ##\n", pool->min_alloc_size, pool->max_alloc_size);
+    printf("\tReserved address range : [%p;%p]\n", pool->heap.base, pool->heap.max_addr);
+    printf("\tUsed address range : [%p;%p]\n\n", pool->heap.base, pool->heap.brk);
     while (GET_SIZE(GET_HDR(blk)) != 0) {
         alloc = GET_ALLOC(GET_HDR(blk));
 
@@ -190,6 +192,24 @@ print_pool(const t_pool *pool, int opts) {
             printf("\tAllocated Block %p : %u bytes, %lu usable.\n", blk, GET_SIZE(GET_HDR(blk)), GET_PLD_SIZE(blk));
         }
         blk = NEXT_BLK(blk);
+    }
+    fflush(stdout);
+}
+
+/**
+ * @brief Print the pool.
+ *
+ * @param pool The pool to print.
+ * @param opts Options to print.
+ *
+ * @note Available options are PRINT_FREE and PRINT_ALLOC.
+ */
+void
+print_pool(const t_pool *pool, int opts) {
+    if (pool->type == ORPHEAN_POOL) {
+        print_pool_orphean(pool, opts);
+    } else {
+        print_pool_normal(pool, opts);
     }
     fflush(stdout);
 }
