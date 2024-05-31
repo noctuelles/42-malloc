@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 14:10:10 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 15:16:14 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ High addr   +--------------+
 #define FREE 0U
 
 #define BLK_MISC_SIZE (2 * WORD_SIZE)
-#define ORPHEAN_BLK_MISC_SIZE (2 * DWORD_SIZE)
+#define ORPHEAN_BLK_MISC_SIZE (4 * DWORD_SIZE)
 
 #define BLK_FREE_LIST_ELEM_SIZE (2 * DWORD_SIZE)
 
@@ -100,8 +100,9 @@ High addr   +--------------+
 #define GET_PAYLOAD_SIZE(hdr_or_ftr) (GET_SIZE(hdr_or_ftr) - (2 * WORD_SIZE))
 
 #define GET_ORPHEAN(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ORPHEAN)
-#define GET_ORPHEAN_SIZE(hdr) (GET_DWORD((t_byte *)(hdr) - DWORD_SIZE))
-#define GET_ORPHEAN_BASE(hdr) ((t_byte *)(hdr) - (3 * WORD_SIZE))
+#define GET_ORPHEAN_BASE(hdr) ((t_byte *)(hdr) - (4 * DWORD_SIZE))
+#define GET_ORPHEAN_SIZE(hdr) (*(size_t *)(GET_ORPHEAN_BASE(hdr) + (1 * WORD_SIZE)))
+#define GET_ORPHEAN_ELEM(hdr) ((t_list *)GET_ORPHEAN_BASE(hdr) + (1 * WORD_SIZE) + (1 * DWORD_SIZE))
 
 #define PACK(size, is_allocated) ((size) | (is_allocated))
 
@@ -128,9 +129,8 @@ High addr   +--------------+
 
 #define FREE_LIST_ELEM(blk_ptr) ((t_list *)(blk_ptr))
 
-void *fill_orphean_blk(uint8_t *blk, size_t size);
-void *new_orphean_blk(size_t size);
-void  free_orphean_blk(void *ptr);
+void *new_orphean_blk(t_list **head, size_t size);
+void  free_orphean_blk(t_list **head, void *ptr);
 
 bool  can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size);
 void *expand_blk(t_list **head, void *blk, size_t xpnd_size);

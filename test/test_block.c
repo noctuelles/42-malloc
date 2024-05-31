@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 14:06:39 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 15:30:31 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,16 +307,50 @@ test_coalesce_blk_PREV_NEXT_FREE() {
 }
 
 void
-test_fill_orphean_blk() {
-    blk = fill_orphean_blk(fake_heap, UINT64_MAX);
+test_orphean_blk() {
+    void *blk0 = NULL;
+    void *blk1 = NULL;
+    void *blk2 = NULL;
+    void *blk3 = NULL;
 
-    TEST_ASSERT_EQUAL(0, GET_SIZE(GET_HDR(blk)));
+    blk0 = new_orphean_blk(&head, (1 << 10));
 
-    TEST_ASSERT_EQUAL(ALLOCATED, GET_ALLOC(GET_HDR(blk)));
-    TEST_ASSERT_EQUAL(ORPHEAN, GET_ORPHEAN(GET_HDR(blk)));
+    TEST_ASSERT_TRUE((uintptr_t)blk0 % 16 == 0);
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk0), head);
+    TEST_ASSERT_EQUAL_PTR(NULL, head->prev);
+    TEST_ASSERT_EQUAL_PTR(NULL, head->next);
+    TEST_ASSERT_TRUE(list_len(head) == 1);
 
-    TEST_ASSERT_EQUAL_UINT64(UINT64_MAX, GET_ORPHEAN_SIZE(GET_HDR(blk)));
-    TEST_ASSERT_TRUE((uintptr_t)blk % QWORD_SIZE == 0);
+    blk1 = new_orphean_blk(&head, (1 << 12));
+
+    TEST_ASSERT_TRUE((uintptr_t)blk1 % 16 == 0);
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk1), head);
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk0), head->next);
+    TEST_ASSERT_EQUAL_PTR(NULL, head->prev);
+    TEST_ASSERT_TRUE(list_len(head) == 2);
+
+    blk2 = new_orphean_blk(&head, (1 << 20));
+
+    TEST_ASSERT_TRUE((uintptr_t)blk2 % 16 == 0);
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk2), head);
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk1), head->next);
+    TEST_ASSERT_EQUAL_PTR(NULL, head->prev);
+    TEST_ASSERT_TRUE(list_len(head) == 3);
+
+    free_orphean_blk(&head, blk1);
+
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk2), head);
+    TEST_ASSERT_TRUE(list_len(head) == 2);
+
+    free_orphean_blk(&head, blk2);
+
+    TEST_ASSERT_EQUAL_PTR(GET_ORPHEAN_ELEM(blk0), head);
+    TEST_ASSERT_TRUE(list_len(head) == 1);
+
+    free_orphean_blk(&head, blk0);
+
+    TEST_ASSERT_EQUAL_PTR(NULL, head);
+    TEST_ASSERT_TRUE(list_len(head) == 0);
 }
 
 int
@@ -338,7 +372,7 @@ main(void) {
     RUN_TEST(test_place_blk_NOT_ENOUGH_FREE_SPACE_FOR_NEW_FREE_BLOCK);
     RUN_TEST(test_place_blk_ENOUGH_FREE_SPACE_FOR_NEW_FREE_BLOCK);
 
-    RUN_TEST(test_fill_orphean_blk);
+    RUN_TEST(test_orphean_blk);
 
     return UNITY_END();
 }
