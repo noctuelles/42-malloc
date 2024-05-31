@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/30 16:04:19 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 13:24:13 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,28 +275,34 @@ void
 show_alloc_mem() {
     size_t i = 0;
 
+    pthread_mutex_lock(&g_lock);
     while (i < N_POOLS) {
         print_pool(&g_pools[i], PRINT_ALLOC);
         i++;
     }
+    pthread_mutex_unlock(&g_lock);
 }
 
 void
 show_alloc_mem_hex() {
     size_t i = 0;
 
+    pthread_mutex_lock(&g_lock);
     while (i < N_POOLS) {
         print_pretty_pool(&g_pools[i], PRINT_ALLOC);
         i++;
     }
+    pthread_mutex_unlock(&g_lock);
 }
 
 void
 show_pools_mem() {
     size_t i = 0;
 
+    pthread_mutex_lock(&g_lock);
     while (i < N_POOLS) {
         print_pool(&g_pools[i], PRINT_ALLOC | PRINT_FREE);
         i++;
     }
+    pthread_mutex_unlock(&g_lock);
 }
