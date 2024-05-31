@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 23:20:28 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 14:06:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ can_expand_blk(void *blk, size_t xpnd_size, size_t pool_max_alloc_size) {
  * @return blk.
  */
 void *
-expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
+expand_blk(t_list **head, void *blk, size_t xpnd_size) {
     void  *next_blk           = NEXT_BLK(blk);
     size_t blk_size           = GET_SIZE(GET_HDR(blk));
     size_t next_free_blk_size = GET_SIZE(GET_HDR(next_blk));
@@ -82,12 +82,12 @@ expand_blk(t_free_list **head, void *blk, size_t xpnd_size) {
 
     new_free_blk_size = next_free_blk_size - xpnd_size;
     if (new_free_blk_size < MIN_BLK_SIZE) {
-        delone_free_list(head, next_blk);
+        delone_list(head, next_blk);
 
         PUT_WORD(GET_HDR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
         PUT_WORD(GET_FTR(blk), PACK(blk_size + next_free_blk_size, ALLOCATED));
     } else {
-        move_free_list_ptr(head, (t_free_list *)((t_byte *)next_blk + xpnd_size), next_blk);
+        move_list_elem(head, (t_list *)((t_byte *)next_blk + xpnd_size), next_blk);
 
         PUT_WORD(GET_HDR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
         PUT_WORD(GET_FTR(blk), PACK(blk_size + xpnd_size, ALLOCATED));
@@ -124,7 +124,7 @@ can_shrink_blk(void *blk, size_t shrk_size, size_t pool_min_alloc_size) {
  * @return void* NULL if blk cannot be shrunk, blk otherwise.
  */
 void *
-shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
+shrink_blk(t_list **head, void *blk, size_t shrk_size) {
     size_t blk_size           = GET_SIZE(GET_HDR(blk));
     size_t new_blk_size       = blk_size - shrk_size;
     void  *created_free_block = NULL;
@@ -150,7 +150,7 @@ shrink_blk(t_free_list **head, void *blk, size_t shrk_size) {
  * @return void* the free block resulting from the coalescing.
  */
 void *
-coalesce_blk(t_free_list **head, void *blk) {
+coalesce_blk(t_list **head, void *blk) {
     void *next_blk = NEXT_BLK(blk);
     void *prev_blk = PREV_BLK(blk);
 
@@ -159,7 +159,7 @@ coalesce_blk(t_free_list **head, void *blk) {
     size_t curr_blk_size  = GET_SIZE(GET_HDR(blk));
 
     if (prev_blk_alloc && next_blk_alloc) {
-        push_front_free_list(head, blk);
+        push_front_list(head, blk);
 
         return (blk);
     }
@@ -169,7 +169,7 @@ coalesce_blk(t_free_list **head, void *blk) {
         PUT_WORD(GET_HDR(blk), PACK(curr_blk_size, FREE));
         PUT_WORD(GET_FTR(blk), PACK(curr_blk_size, FREE));
 
-        move_free_list_ptr(head, blk, next_blk);
+        move_list_elem(head, blk, next_blk);
     } else if (!prev_blk_alloc && next_blk_alloc) {
         curr_blk_size += GET_SIZE(GET_HDR(prev_blk));
 
@@ -185,14 +185,14 @@ coalesce_blk(t_free_list **head, void *blk) {
 
         blk = prev_blk;
 
-        delone_free_list(head, next_blk);
+        delone_list(head, next_blk);
     }
 
     return (blk);
 }
 
 void
-place_blk(t_free_list **head, void *blk, const size_t adj_size) {
+place_blk(t_list **head, void *blk, const size_t adj_size) {
     size_t blk_size     = 0;
     void  *old_free_blk = NULL;
 
@@ -207,12 +207,12 @@ place_blk(t_free_list **head, void *blk, const size_t adj_size) {
         PUT_WORD(GET_HDR(blk), PACK(blk_size - adj_size, FREE));
         PUT_WORD(GET_FTR(blk), PACK(blk_size - adj_size, FREE));
 
-        move_free_list_ptr(head, blk, old_free_blk);
+        move_list_elem(head, blk, old_free_blk);
     } else {
         PUT_WORD(GET_HDR(blk), PACK(blk_size, ALLOCATED));
         PUT_WORD(GET_FTR(blk), PACK(blk_size, ALLOCATED));
 
-        delone_free_list(head, blk);
+        delone_list(head, blk);
     }
 }
 

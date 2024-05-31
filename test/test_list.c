@@ -1,24 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_free_list.c                                   :+:      :+:    :+:   */
+/*   test_list.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/22 19:56:37 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/27 17:57:10 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 15:04:27 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "free_list.h"
+#include "list.h"
 #include "unity.h"
 
-static t_free_list *head = NULL;
+static t_list *head = NULL;
 
-static t_free_list elem0 = {0};
-static t_free_list elem1 = {0};
-static t_free_list elem2 = {0};
-static t_free_list elem3 = {0};
+static t_list elem0 = {0};
+static t_list elem1 = {0};
+static t_list elem2 = {0};
+static t_list elem3 = {0};
 
 void
 setUp(void) {
@@ -41,8 +41,8 @@ void
 tearDown(void) {}
 
 void
-test_delone_free_list_HEAD() {
-    delone_free_list(&head, &elem0);
+test_delone_list_HEAD() {
+    delone_list(&head, &elem0);
 
     TEST_ASSERT_EQUAL_PTR(&elem1, head);
 
@@ -57,8 +57,8 @@ test_delone_free_list_HEAD() {
 }
 
 void
-test_delone_free_list_TAIL() {
-    delone_free_list(&head, &elem3);
+test_delone_list_TAIL() {
+    delone_list(&head, &elem3);
 
     TEST_ASSERT_EQUAL_PTR(&elem0, head);
 
@@ -73,8 +73,8 @@ test_delone_free_list_TAIL() {
 }
 
 void
-test_delone_free_list_MIDDLE() {
-    delone_free_list(&head, &elem2);
+test_delone_list_MIDDLE() {
+    delone_list(&head, &elem2);
 
     TEST_ASSERT_EQUAL_PTR(&elem0, head);
 
@@ -89,20 +89,20 @@ test_delone_free_list_MIDDLE() {
 }
 
 void
-test_delone_free_list_SINGLE_ELEM() {
-    t_free_list  elem = {0};
-    t_free_list *head = &elem;
+test_delone_list_SINGLE_ELEM() {
+    t_list  elem = {0};
+    t_list *head = &elem;
 
-    delone_free_list(&head, &elem);
+    delone_list(&head, &elem);
 
     TEST_ASSERT_EQUAL_PTR(NULL, head);
 }
 
 void
-test_push_front_free_list_EXISTING_LIST() {
-    t_free_list elem4 = {0};
+test_push_front_list_EXISTING_LIST() {
+    t_list elem4 = {0};
 
-    push_front_free_list(&head, &elem4);
+    push_front_list(&head, &elem4);
 
     TEST_ASSERT_EQUAL_PTR(&elem4, head);
 
@@ -123,11 +123,11 @@ test_push_front_free_list_EXISTING_LIST() {
 }
 
 void
-test_push_front_free_list_NEW_LIST() {
-    t_free_list *new_head = NULL;
-    t_free_list  elem4    = {0};
+test_push_front_list_NEW_LIST() {
+    t_list *new_head = NULL;
+    t_list  elem4    = {0};
 
-    push_front_free_list(&new_head, &elem4);
+    push_front_list(&new_head, &elem4);
 
     TEST_ASSERT_EQUAL_PTR(&elem4, new_head);
 
@@ -136,10 +136,10 @@ test_push_front_free_list_NEW_LIST() {
 }
 
 void
-test_move_free_list_ptr_HEAD() {
-    t_free_list elem4 = {0};
+test_move_list_ptr_HEAD() {
+    t_list elem4 = {0};
 
-    move_free_list_ptr(&head, &elem4, head);
+    move_list_elem(&head, &elem4, head);
 
     TEST_ASSERT_EQUAL_PTR(&elem4, head);
 
@@ -157,10 +157,10 @@ test_move_free_list_ptr_HEAD() {
 }
 
 void
-test_move_free_list_ptr_MIDDLE() {
-    t_free_list elem4 = {0};
+test_move_list_ptr_MIDDLE() {
+    t_list elem4 = {0};
 
-    move_free_list_ptr(&head, &elem4, &elem2);
+    move_list_elem(&head, &elem4, &elem2);
 
     TEST_ASSERT_EQUAL_PTR(&elem0, head);
 
@@ -178,10 +178,10 @@ test_move_free_list_ptr_MIDDLE() {
 }
 
 void
-test_move_free_list_ptr_TAIL() {
-    t_free_list elem4 = {0};
+test_move_list_ptr_TAIL() {
+    t_list elem4 = {0};
 
-    move_free_list_ptr(&head, &elem4, &elem3);
+    move_list_elem(&head, &elem4, &elem3);
 
     TEST_ASSERT_EQUAL_PTR(&elem0, head);
 
@@ -199,27 +199,27 @@ test_move_free_list_ptr_TAIL() {
 }
 
 void
-test_free_list_len() {
-    TEST_ASSERT_EQUAL_UINT(4, free_list_len(head));
+test_list_len() {
+    TEST_ASSERT_EQUAL_UINT(4, list_len(head));
 }
 
 int
 main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(test_delone_free_list_HEAD);
-    RUN_TEST(test_delone_free_list_TAIL);
-    RUN_TEST(test_delone_free_list_MIDDLE);
-    RUN_TEST(test_delone_free_list_SINGLE_ELEM);
+    RUN_TEST(test_delone_list_HEAD);
+    RUN_TEST(test_delone_list_TAIL);
+    RUN_TEST(test_delone_list_MIDDLE);
+    RUN_TEST(test_delone_list_SINGLE_ELEM);
 
-    RUN_TEST(test_push_front_free_list_EXISTING_LIST);
-    RUN_TEST(test_push_front_free_list_NEW_LIST);
+    RUN_TEST(test_push_front_list_EXISTING_LIST);
+    RUN_TEST(test_push_front_list_NEW_LIST);
 
-    RUN_TEST(test_move_free_list_ptr_HEAD);
-    RUN_TEST(test_move_free_list_ptr_MIDDLE);
-    RUN_TEST(test_move_free_list_ptr_TAIL);
+    RUN_TEST(test_move_list_ptr_HEAD);
+    RUN_TEST(test_move_list_ptr_MIDDLE);
+    RUN_TEST(test_move_list_ptr_TAIL);
 
-    RUN_TEST(test_free_list_len);
+    RUN_TEST(test_list_len);
 
     return UNITY_END();
 }

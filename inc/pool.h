@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/28 12:49:33 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 14:06:39 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ typedef struct s_pool {
     size_t min_alloc_size;
     size_t max_alloc_size;
 
-    t_heap       heap;
-    t_free_list *head;
-    void        *beginning;
+    t_heap  heap;
+    t_list *head;
+    void   *beginning;
 } t_pool;
 
 void   *extend_pool(t_pool *pool, const size_t size);

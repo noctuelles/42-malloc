@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:50:12 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 14:53:19 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 14:06:39 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@
 #define FAKE_HEAP_SIZE (1U << 12)
 #define XPND_SIZE (1U << 4)
 
-static t_byte       fake_heap[FAKE_HEAP_SIZE] = {0};
-static void        *blk                       = NULL;
-static t_free_list *head                      = NULL;
+static t_byte  fake_heap[FAKE_HEAP_SIZE] = {0};
+static void   *blk                       = NULL;
+static t_list *head                      = NULL;
 
 void
 setUp() {
@@ -61,8 +61,8 @@ test_can_expand_blk_TOO_BIG_TO_FIT_IN_POOL() {
 
 void
 test_expand_blk_NEXT_FREE_BIG_ENOUGH() {
-    void       *next_blk = NULL;
-    t_free_list fake_prev_free_blk, fake_next_free_blk;
+    void  *next_blk = NULL;
+    t_list fake_prev_free_blk, fake_next_free_blk;
 
     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, ALLOCATED));
@@ -117,7 +117,7 @@ test_expand_blk_NEXT_FREE_NOT_BIG_ENOUGH() {
 
 void
 test_place_blk_EXACT_SIZE() {
-    t_free_list *head = blk;
+    t_list *head = blk;
 
     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE, FREE));
     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE, FREE));
@@ -131,7 +131,7 @@ test_place_blk_EXACT_SIZE() {
 
 void
 test_place_blk_NOT_ENOUGH_FREE_SPACE_FOR_NEW_FREE_BLOCK() {
-    t_free_list *head = blk;
+    t_list *head = blk;
 
     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE + MIN_BLK_SIZE / 2, FREE));
     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE + MIN_BLK_SIZE / 2, FREE));
@@ -145,8 +145,8 @@ test_place_blk_NOT_ENOUGH_FREE_SPACE_FOR_NEW_FREE_BLOCK() {
 
 void
 test_place_blk_ENOUGH_FREE_SPACE_FOR_NEW_FREE_BLOCK() {
-    t_free_list *head          = blk;
-    void        *next_free_blk = NULL;
+    t_list *head          = blk;
+    void   *next_free_blk = NULL;
 
     PUT_WORD(GET_HDR(blk), PACK(MIN_BLK_SIZE * 3, FREE));
     PUT_WORD(GET_FTR(blk), PACK(MIN_BLK_SIZE * 3, FREE));
@@ -165,9 +165,9 @@ test_place_blk_ENOUGH_FREE_SPACE_FOR_NEW_FREE_BLOCK() {
 
 void
 test_coalesce_blk_NO_ADJACENT_FREE() {
-    void        *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void        *rslt = NULL;
-    t_free_list *head = NULL;
+    void   *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+    void   *rslt = NULL;
+    t_list *head = NULL;
 
     first_blk = blk;
 
@@ -201,9 +201,9 @@ test_coalesce_blk_NO_ADJACENT_FREE() {
 
 void
 test_coalesce_blk_PREV_FREE() {
-    void        *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void        *rslt = NULL;
-    t_free_list *head = NULL;
+    void   *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+    void   *rslt = NULL;
+    t_list *head = NULL;
 
     first_blk = blk;
     head      = first_blk;
@@ -236,9 +236,9 @@ test_coalesce_blk_PREV_FREE() {
 
 void
 test_coalesce_blk_NEXT_FREE() {
-    void        *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void        *rslt = NULL;
-    t_free_list *head = NULL;
+    void   *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+    void   *rslt = NULL;
+    t_list *head = NULL;
 
     first_blk = blk;
 
@@ -270,9 +270,9 @@ test_coalesce_blk_NEXT_FREE() {
 
 void
 test_coalesce_blk_PREV_NEXT_FREE() {
-    void        *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
-    void        *rslt = NULL;
-    t_free_list *head = NULL;
+    void   *first_blk = NULL, *second_blk = NULL, *third_blk = NULL;
+    void   *rslt = NULL;
+    t_list *head = NULL;
 
     first_blk = blk;
     head      = first_blk;

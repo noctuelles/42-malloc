@@ -6,7 +6,7 @@
 #    By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 13:55:46 by plouvel           #+#    #+#              #
-#    Updated: 2024/05/30 16:24:33 by plouvel          ###   ########.fr        #
+#    Updated: 2024/05/31 14:10:24 by plouvel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ SRC=block.c \
 	orphean_block.c \
     heap.c \
 	malloc.c \
-	free_list.c \
+	list.c \
 	heap.c \
 	tunable.c \
 	utils.c \

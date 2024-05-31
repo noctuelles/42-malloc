@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/29 15:19:55 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/05/31 14:06:39 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@
  */
 void *
 find_fit_in_pool(t_pool *pool, const size_t adj_size) {
-    t_free_list *blk      = pool->head;
-    size_t       blk_size = 0;
+    t_list *blk      = pool->head;
+    size_t  blk_size = 0;
 
     while (blk != NULL) {
         blk_size = GET_SIZE(GET_HDR(blk));
@@ -169,9 +169,9 @@ init_pool(t_pool *pool) {
  */
 void
 print_pool(const t_pool *pool, int opts) {
-    void        *blk      = pool->beginning;
-    t_free_list *free_blk = NULL;
-    size_t       alloc    = 0;
+    void   *blk      = pool->beginning;
+    t_list *free_blk = NULL;
+    size_t  alloc    = 0;
 
     printf("## Pool [%lu;%lu] ##\n", pool->min_alloc_size, pool->max_alloc_size);
     while (GET_SIZE(GET_HDR(blk)) != 0) {
