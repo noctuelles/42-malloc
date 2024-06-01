@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 17:02:23 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 16:46:21 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ rand_between(size_t min, size_t max) {
 }
 
 static void
-memrand(void *ptr, size_t size) {
+memrand(void* ptr, size_t size) {
     int devrand = open("/dev/urandom", O_RDONLY);
     if (devrand == -1) {
         return;
@@ -40,8 +40,8 @@ memrand(void *ptr, size_t size) {
 }
 
 static void (*thread_routine)() = NULL;
-void *
-thread_routine_wrapper(void *parg) {
+void*
+thread_routine_wrapper(void* parg) {
     (void)parg;
     thread_routine();
     return (NULL);
@@ -94,7 +94,7 @@ test_malloc_free_RANDOM() {
 #define MIN_ALLOC_SIZE POOL_ONE_MIN_ALLOC_SIZE
 #define MAX_ALLOC_SIZE POOL_TWO_MAX_ALLOC_SIZE
 
-    void           *ptrs[BUFFER_SIZE] = {0};
+    void*           ptrs[BUFFER_SIZE] = {0};
     char            buffer[1 << 10]   = {0};
     uint8_t         should_realloc    = REALLOC_RATE;
     struct timespec start, sample;
@@ -183,16 +183,33 @@ test_malloc_free_RANDOM_MULTITHREADING() {
 }
 
 void
-test_SANDBOX() {
-    void *ptr = malloc(99999);
-    ptr       = realloc(ptr, 5);
-    return;
+test_show_alloc_mem() {
+#define M (1024 * 1024)
+    void* a = malloc(1);
+    void* b = malloc(2);
+    void* c = malloc(4);
+    void* d = malloc(8);
+    void* e = malloc(16);
+    void* f = malloc(32);
+    void* g = malloc(64);
+    void* h = malloc(128);
+    void* i = malloc(256);
+    void* j = malloc(512);
+    void* k = malloc(1024);
+    void* l = malloc(1024 * 2);
+    void* m = malloc(1024 * 4);
+    void* n = malloc(1024 * 32);
+    void* o = malloc(M);
+    void* p = malloc(16 * M);
+    void* q = malloc(128 * M);
+    show_alloc_mem();
+#undef M
 }
 
 int
 main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_SANDBOX);
+    RUN_TEST(test_show_alloc_mem);
     RUN_TEST(test_malloc_free_RANDOM);
     RUN_TEST(test_malloc_free_RANDOM_MULTITHREADING);
     return UNITY_END();
