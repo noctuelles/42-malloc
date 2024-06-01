@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 16:46:21 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 17:21:36 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,14 +202,46 @@ test_show_alloc_mem() {
     void* o = malloc(M);
     void* p = malloc(16 * M);
     void* q = malloc(128 * M);
+
     show_alloc_mem();
+
+    free(a);
+    free(b);
+    free(c);
+    free(d);
+    free(e);
+    free(f);
+    free(g);
+    free(h);
+    free(i);
+    free(j);
+    free(k);
+    free(l);
+    free(m);
+    free(n);
+    free(o);
+    free(p);
+    free(q);
 #undef M
+}
+
+void
+test_show_alloc_mem_hex() {
+#define STR0 "Hello World!"
+    char* str = malloc(sizeof(STR0));
+
+    strcpy(str, STR0);
+
+    show_alloc_mem_hex();
+    show_free_mem();
+#undef STR0
 }
 
 int
 main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_show_alloc_mem);
+    RUN_TEST(test_show_alloc_mem_hex);
     RUN_TEST(test_malloc_free_RANDOM);
     RUN_TEST(test_malloc_free_RANDOM_MULTITHREADING);
     return UNITY_END();

@@ -6,13 +6,14 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 14:06:59 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 17:19:41 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "block.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -216,50 +217,54 @@ place_blk(t_list **head, void *blk, const size_t adj_size) {
     }
 }
 
-static void
-print_hdr_ftr(void *hdr) {
-    printf("+-----------------------+\n");
-    printf("|%3s%#010x%3s|    %c%c|\n", "", GET_SIZE(hdr), "", GET_ORPHEAN(hdr) ? 'O' : 'N',
-           GET_ALLOC(hdr) ? 'A' : 'F');
-    printf("+-----------------------+\n");
-}
-
-static void
-print_body(void *blk) {
-    size_t  blk_size = GET_SIZE(GET_HDR(blk)) - 2 * WORD_SIZE;
-    t_byte *pld_mem  = blk;
-    size_t  i        = 0;
-    size_t  j        = 0;
-
-    if (GET_ALLOC(GET_HDR(blk)) == FREE) {
-        printf("|prev : %16p|\n", FREE_LIST_ELEM(blk)->prev);
-        printf("|next : %16p|\n", FREE_LIST_ELEM(blk)->next);
-        blk_size -= 2 * DWORD_SIZE;
-        pld_mem += 2 * DWORD_SIZE;
-    }
-
-    while (i < blk_size) {
-        putchar('|');
-        j = 0;
-        while (j < DWORD_SIZE) {
-            printf("%02x", pld_mem[i + j]);
-            if (j != DWORD_SIZE - 1) {
-                putchar(' ');
-            }
-            j++;
-        }
-        printf("|\n");
-        i += DWORD_SIZE;
-    }
-}
 /**
- * @brief Print the block information.
+ * @brief Print the block memory content.
  *
+ * @param out output stream.
  * @param blk block to be printed.
  */
 void
-print_blk(void *blk) {
-    print_hdr_ftr(GET_HDR(blk));
-    print_body(blk);
-    print_hdr_ftr(GET_FTR(blk));
+hexdump_blk_mem(FILE *out, const char *padding, void *blk) {
+#define BYTE_PER_LINE (2 * DWORD_SIZE)
+    size_t  blk_usable_size = 0;
+    t_byte *usable_mem      = blk;
+    size_t  n_space         = 0;
+    size_t  i               = 0;
+    size_t  j               = 0;
+
+    if (GET_ORPHEAN(GET_HDR(blk))) {
+        blk_usable_size = GET_ORPHEAN_SIZE(blk) - ORPHEAN_BLK_MISC_SIZE;
+    } else {
+        blk_usable_size = GET_SIZE(GET_HDR(blk)) - BLK_MISC_SIZE;
+    }
+    fprintf(out, "%sHexdump of the block content :\n", padding);
+    while (i < blk_usable_size) {
+        j = 0;
+        fprintf(out, "\t%s", padding);
+        fprintf(out, "%p : ", usable_mem + i);
+        while (j < BYTE_PER_LINE && i + j < blk_usable_size) {
+            fprintf(out, "%02x", usable_mem[i + j]);
+            if (j != BYTE_PER_LINE - 1) {
+                fputc(' ', out);
+            }
+            j++;
+        }
+        n_space = (BYTE_PER_LINE - j) * 3 + 1;
+        while (n_space--) {
+            fputc(' ', out);
+        }
+        j = 0;
+        fputc('|', out);
+        while (j < BYTE_PER_LINE && i + j < blk_usable_size) {
+            if (isprint(usable_mem[i + j])) {
+                fputc(usable_mem[i + j], out);
+            } else {
+                fputc('.', out);
+            }
+            j++;
+        }
+        fputc('|', out);
+        fputc('\n', out);
+        i += BYTE_PER_LINE;
+    }
 }

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 16:44:17 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 17:25:00 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,11 +159,18 @@ print_pool_orphean(const t_pool *pool, int opts) {
 
     fprintf(stderr, "## Orphean Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
     elem = pool->head;
+    if (elem == NULL) {
+        fprintf(stderr, "\tNo blocks.\n\n");
+        return;
+    }
     while (elem != NULL) {
         blk = (t_byte *)(elem) + sizeof(t_list) + WORD_SIZE;
         if (opts & PRINT_ALLOC) {
             fprintf(stderr, "\tAllocated Block %p : %lu bytes, %lu usable.\n", GET_ORPHEAN_BASE(blk),
                     GET_ORPHEAN_SIZE(blk), GET_ORPHEAN_SIZE(blk) - ORPHEAN_BLK_MISC_SIZE);
+            if (opts & PRINT_ALLOC_HEXDUMP) {
+                hexdump_blk_mem(stderr, "\t\t", blk);
+            }
         }
         elem = elem->next;
     }
@@ -177,9 +184,13 @@ print_pool_normal(const t_pool *pool, int opts) {
     size_t  alloc    = 0;
 
     fprintf(stderr, "## Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
-    fprintf(stderr, "\tHeap Reserved Address Range : [%p;%p]\n", pool->heap.base, pool->heap.max_addr);
-    fprintf(stderr, "\tUsed Address Range : [%p;%p]\n", pool->heap.base, pool->heap.brk);
-    fprintf(stderr, "\tHeap Break : %p\n\n", pool->heap.brk);
+    fprintf(stderr, "\tHeap Reserved Address Range : [%p ; %p]\n", pool->heap.base, pool->heap.max_addr);
+    fprintf(stderr, "\tUsed Address Range          : [%p ; %p]\n", pool->heap.base, pool->heap.brk);
+    fprintf(stderr, "\tHeap Break                  : %p\n\n", pool->heap.brk);
+    if (GET_SIZE(GET_HDR(blk)) == 0) {
+        fprintf(stderr, "\tNo blocks.\n\n");
+        return;
+    }
     while (GET_SIZE(GET_HDR(blk)) != 0) {
         alloc = GET_ALLOC(GET_HDR(blk));
 
@@ -192,9 +203,15 @@ print_pool_normal(const t_pool *pool, int opts) {
             }
             fprintf(stderr, "\t\t- prev : %p\n", free_blk->prev);
             fprintf(stderr, "\t\t- next : %p\n", free_blk->next);
+            if (opts & PRINT_FREE_HEXDUMP) {
+                hexdump_blk_mem(stderr, "\t\t", blk);
+            }
         } else if (alloc && opts & PRINT_ALLOC) {
             fprintf(stderr, "\tAllocated Block %p : %u bytes, %lu usable.\n", blk, GET_SIZE(GET_HDR(blk)),
                     GET_SIZE(GET_HDR(blk)) - BLK_MISC_SIZE);
+            if (opts & PRINT_ALLOC_HEXDUMP) {
+                hexdump_blk_mem(stderr, "\t\t", blk);
+            }
         }
         blk = NEXT_BLK(blk);
     }
@@ -216,30 +233,4 @@ print_pool(const t_pool *pool, int opts) {
     } else {
         print_pool_normal(pool, opts);
     }
-}
-
-/**
- * @brief Print the pool in a pretty way, with an ASCII representation of the blocks.
- *
- * @param pool The pool to print.
- * @param opts Options to print.
- *
- * @note Available options are PRINT_FREE and PRINT_ALLOC.
- */
-void
-print_pretty_pool(const t_pool *pool, int opts) {
-    void  *blk   = pool->beginning;
-    size_t alloc = 0;
-
-    printf("## Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
-    while (GET_SIZE(GET_HDR(blk)) != 0) {
-        alloc = GET_ALLOC(GET_HDR(blk));
-        if (alloc && (opts & PRINT_ALLOC)) {
-            print_blk(blk);
-        } else if (!alloc && (opts & PRINT_FREE)) {
-            print_blk(blk);
-        }
-        blk = NEXT_BLK(blk);
-    }
-    fflush(stdout);
 }

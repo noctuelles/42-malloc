@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 15:50:05 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 16:56:05 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int     init_pool(t_pool *pool);
 t_pool *find_appropriate_pool_for_alloc(t_pool *pools, size_t n, size_t adj_size);
 void   *find_fit_in_pool(t_pool *pool, const size_t size);
 t_pool *find_blk_in_pools(t_pool *pools, size_t n, void *blk);
-void    print_pool(const t_pool *pool, int opts);
-void    print_pretty_pool(const t_pool *pool, int opts);
+
+void print_pool(const t_pool *pool, int opts);
 
 #endif

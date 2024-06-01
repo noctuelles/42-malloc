@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 02:44:38 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 17:02:07 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "list.h"
 #include "utils.h"
@@ -141,6 +142,6 @@ void *shrink_blk(t_list **head, void *blk, size_t shrk_size);
 void *coalesce_blk(t_list **head, void *blk);
 void  place_blk(t_list **head, void *blk, const size_t adj_size);
 
-void print_blk(void *blk);
+void hexdump_blk_mem(FILE *out, const char *padding, void *blk);
 
 #endif
