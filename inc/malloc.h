@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 15:11:36 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 15:42:11 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 17:29:42 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,18 @@
 #define MALLOC_H
 
 #include "pool.h"
+
+#define SHOW_POOLS(opts)                     \
+    do {                                     \
+        size_t i = 0;                        \
+                                             \
+        pthread_mutex_lock(&g_lock);         \
+        while (i < N_POOLS) {                \
+            print_pool(&g_pools[i], (opts)); \
+            i++;                             \
+        }                                    \
+        pthread_mutex_unlock(&g_lock);       \
+    } while (0)
 
 #define N_POOLS 3
 #define ORPHEAN_POOL_IDX 2

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 17:21:08 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 17:47:50 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ malloc_block(size_t size) {
         ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
         blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
         if (blk == NULL) {
-            return (new_orphean_blk(&g_pools[N_POOLS - 1].head, adj_size));
+            return (NULL);
         }
     }
     place_blk(&blk_pool->head, blk, adj_size);
@@ -254,80 +254,66 @@ realloc(void *ptr, size_t size) {
 
 /* ## CALLOC ## */
 
-void *
-calloc(size_t nmemb, size_t size) {
+static void *
+calloc_block(size_t nmemb, size_t size) {
     size_t total_size = 0;
     void  *ptr        = NULL;
 
     total_size = nmemb * size;
-    pthread_mutex_lock(&g_lock);
-    ptr = malloc_block(total_size);
+    ptr        = malloc_block(total_size);
     if (ptr == NULL) {
-        pthread_mutex_unlock(&g_lock);
         return (NULL);
     }
-    bzero(ptr, malloc_usable_size(ptr));
+    bzero(ptr, total_size);
+    return (ptr);
+}
+
+void *
+calloc(size_t nmemb, size_t size) {
+    void *ptr = NULL;
+
+    pthread_mutex_lock(&g_lock);
+    ptr = calloc_block(nmemb, size);
     pthread_mutex_unlock(&g_lock);
+
     return (ptr);
 }
 
 size_t
 malloc_usable_size(void *ptr) {
+    size_t usable_size = 0;
+
     if (ptr == NULL) {
         return (0);
     }
+    pthread_mutex_lock(&g_lock);
     if (GET_ORPHEAN(GET_HDR(ptr))) {
-        return (GET_ORPHEAN_SIZE(ptr) - ORPHEAN_BLK_MISC_SIZE);
+        usable_size = GET_ORPHEAN_SIZE(ptr) - ORPHEAN_BLK_MISC_SIZE;
+    } else {
+        usable_size = GET_SIZE(GET_HDR(ptr)) - BLK_MISC_SIZE;
     }
-    return (GET_SIZE(GET_HDR(ptr)) - BLK_MISC_SIZE);
+    pthread_mutex_unlock(&g_lock);
+    return (usable_size);
 }
 
 /* ## Utils ## */
 
 void
 show_alloc_mem() {
-    size_t i = 0;
-
-    pthread_mutex_lock(&g_lock);
-    while (i < N_POOLS) {
-        print_pool(&g_pools[i], PRINT_ALLOC);
-        i++;
-    }
-    pthread_mutex_unlock(&g_lock);
+    SHOW_POOLS(PRINT_ALLOC);
 }
 
 void
 show_alloc_mem_hex() {
-    size_t i = 0;
-
-    pthread_mutex_lock(&g_lock);
-    while (i < N_POOLS) {
-        print_pool(&g_pools[i], PRINT_ALLOC | PRINT_ALLOC_HEXDUMP);
-        i++;
-    }
-    pthread_mutex_unlock(&g_lock);
+    SHOW_POOLS(PRINT_ALLOC | PRINT_ALLOC_HEXDUMP);
 }
 
 void
 show_free_mem() {
-    size_t i = 0;
-
-    pthread_mutex_lock(&g_lock);
-    while (i < N_POOLS) {
-        print_pool(&g_pools[i], PRINT_FREE);
-        i++;
-    }
-    pthread_mutex_unlock(&g_lock);
+    SHOW_POOLS(PRINT_FREE);
 }
 
 void
 show_free_mem_hex() {
-    size_t i = 0;
-
-    pthread_mutex_lock(&g_lock);
-    while (i < N_POOLS) {
-        print_pool(&g_pools[i], PRINT_FREE | PRINT_FREE_HEXDUMP);
-        i++;
-    }
-    pthread_mutex_unlock(&g_lock);
+    SHOW_POOLS(PRINT_FREE | PRINT_FREE_HEXDUMP);
 }
