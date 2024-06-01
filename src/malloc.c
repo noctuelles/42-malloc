@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 03:11:33 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 16:30:27 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,13 +202,15 @@ realloc_non_orphean(void *ptr, size_t adj_size) {
     const size_t blk_size  = GET_SIZE(GET_HDR(ptr));
     t_pool      *blk_pool  = find_blk_in_pools(g_pools, N_POOLS, ptr);
     size_t       xpnd_size = 0;
+    size_t       shrk_size = 0;
 
     if (blk_pool == NULL) {
         return (NULL);
     }
     if (adj_size < blk_size) {
-        if (can_shrink_blk(ptr, blk_size - adj_size, blk_pool->min_alloc_size)) {
-            return (shrink_blk(&blk_pool->head, ptr, blk_size - adj_size));
+        shrk_size = blk_size - adj_size;
+        if (can_shrink_blk(ptr, shrk_size, blk_pool->min_alloc_size)) {
+            return (shrink_blk(&blk_pool->head, ptr, shrk_size));
         }
     } else if (adj_size > blk_size) {
         xpnd_size = adj_size - blk_size;
@@ -261,6 +263,7 @@ calloc(size_t nmemb, size_t size) {
     pthread_mutex_lock(&g_lock);
     ptr = malloc_block(total_size);
     if (ptr == NULL) {
+        pthread_mutex_unlock(&g_lock);
         return (NULL);
     }
     bzero(ptr, malloc_usable_size(ptr));
