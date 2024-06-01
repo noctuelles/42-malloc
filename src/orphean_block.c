@@ -6,10 +6,11 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/27 15:16:04 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 16:39:30 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 02:52:22 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdio.h>
 #include <sys/mman.h>
 
 #include "block.h"
@@ -23,10 +24,8 @@
  */
 void *
 new_orphean_blk(t_list **head, size_t size) {
-    size = size + ORPHEAN_BLK_MISC_SIZE;
-    size = align_on_page_size_boundary(size);
-
-    t_byte *blk = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    t_byte *blk = mmap(NULL, align_on_page_size_boundary(size + ORPHEAN_BLK_MISC_SIZE), PROT_READ | PROT_WRITE,
+                       MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 
     if (blk == MAP_FAILED) {
         return (NULL);
@@ -37,14 +36,16 @@ new_orphean_blk(t_list **head, size_t size) {
     /* Orphean Block Size */
     PUT_DWORD(blk + (1 * WORD_SIZE), size);
     /* List Element */
-    PUT_DWORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), 0UL);
-    PUT_DWORD(blk + (1 * WORD_SIZE) + (2 * DWORD_SIZE), 0UL);
+    PUT_DWORD(blk + (1 * WORD_SIZE) + (1 * DWORD_SIZE), -1);
+    PUT_DWORD(blk + (1 * WORD_SIZE) + (2 * DWORD_SIZE), -1);
     /* Header */
     PUT_WORD(blk + (1 * WORD_SIZE) + (3 * DWORD_SIZE), PACK(0, ALLOCATED | ORPHEAN));
 
     blk += ORPHEAN_BLK_MISC_SIZE;
 
     push_front_list(head, GET_ORPHEAN_ELEM(blk));
+
+    fflush(stdout);
 
     return (blk);
 }

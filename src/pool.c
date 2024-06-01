@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 16:02:58 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 01:50:23 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ print_pool_orphean(const t_pool *pool, int opts) {
     while (elem != NULL) {
         if (opts & PRINT_ALLOC) {
             printf("\tAllocated Block %p : %lu bytes.\n", (t_byte *)(elem) + sizeof(t_list) + WORD_SIZE,
-                   *(size_t *)((t_byte *)elem - DWORD_SIZE));
+                   *(size_t *)((t_byte *)(elem)-DWORD_SIZE));
         }
         elem = elem->next;
     }

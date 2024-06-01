@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 16:50:37 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 03:11:33 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static t_pool g_pools[N_POOLS] = {{
                                   },
                                   {
                                       .min_alloc_size = 0,
-                                      .max_alloc_size = SIZE_MAX,
+                                      .max_alloc_size = 0,
                                       .type           = ORPHEAN_POOL,
                                       .head           = NULL,
                                       .heap           = {0},
@@ -54,7 +54,7 @@ static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 /* ## MALLOC ## */
 
 static void
-configure_pools_tunable() {
+configure_pools_alloc_sizes() {
     g_pools[0].min_alloc_size = ADJ_ALLOC_SIZE(POOL_ONE_MIN_ALLOC_SIZE);
     g_pools[0].max_alloc_size = ADJ_ALLOC_SIZE(get_tunable(FT_POOL_ONE_MAX_ALLOC_SIZE_STR, POOL_ONE_MAX_ALLOC_SIZE));
 
@@ -62,6 +62,7 @@ configure_pools_tunable() {
     g_pools[1].max_alloc_size = ADJ_ALLOC_SIZE(get_tunable(FT_POOL_TWO_MAX_ALLOC_SIZE_STR, POOL_TWO_MAX_ALLOC_SIZE));
 
     g_pools[2].min_alloc_size = g_pools[1].max_alloc_size + 1;
+    g_pools[2].max_alloc_size = SIZE_MAX;
 
     assert(g_pools[1].min_alloc_size > g_pools[0].max_alloc_size);
     assert(g_pools[1].max_alloc_size > g_pools[0].max_alloc_size);
@@ -80,7 +81,7 @@ init_malloc() {
     if (is_init) {
         return (0);
     }
-    configure_pools_tunable();
+    configure_pools_alloc_sizes();
     while (i < N_POOLS) {
         if (init_pool(&g_pools[i]) == -1) {
             return (-1);
@@ -106,7 +107,6 @@ malloc_block(size_t size) {
     }
     adj_size = ADJ_ALLOC_SIZE(size);
     blk_pool = find_appropriate_pool_for_alloc(g_pools, N_POOLS, adj_size);
-    assert(blk_pool != NULL);
     if (blk_pool->type == ORPHEAN_POOL) {
         return (new_orphean_blk(&blk_pool->head, adj_size));
     }
@@ -126,9 +126,9 @@ void *
 malloc(size_t size) {
     void *ptr = NULL;
 
-    // pthread_mutex_lock(&g_lock);
+    pthread_mutex_lock(&g_lock);
     ptr = malloc_block(size);
-    // pthread_mutex_unlock(&g_lock);
+    pthread_mutex_unlock(&g_lock);
 
     return (ptr);
 }
@@ -146,38 +146,36 @@ free_block(void *ptr) {
     if (blk_pool->type == ORPHEAN_POOL) {
         free_orphean_blk(&blk_pool->head, ptr);
     } else {
-        if (blk_pool != NULL) {
-            PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-            PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
-            coalesce_blk(&blk_pool->head, ptr);
-        }
+        PUT_WORD(GET_HDR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+        PUT_WORD(GET_FTR(ptr), PACK(GET_SIZE(GET_HDR(ptr)), FREE));
+        coalesce_blk(&blk_pool->head, ptr);
     }
 }
 void
 free(void *ptr) {
-    // pthread_mutex_lock(&g_lock);
+    pthread_mutex_lock(&g_lock);
     free_block(ptr);
-    // pthread_mutex_unlock(&g_lock);
+    pthread_mutex_unlock(&g_lock);
 }
 
 /* ## REALLOC ## */
 
 static void *
-new_malloc_cpy_old_data(void *old_ptr, size_t old_size, size_t new_size) {
-    void  *new_ptr = NULL;
-    size_t ncpy    = 0;
+new_malloc_cpy_old_data(void *old_ptr, size_t old_size, size_t adj_new_size) {
+    void  *new_ptr      = NULL;
+    size_t bytes_to_cpy = 0;
 
-    new_ptr = malloc_block(new_size);
+    new_ptr = malloc_block(adj_new_size);
     if (new_ptr == NULL) {
         return (NULL);
     }
-    ncpy = MIN(new_size, old_size);
-    if (GET_ORPHEAN(GET_HDR(old_ptr))) {
-        ncpy -= ORPHEAN_BLK_MISC_SIZE;
+    bytes_to_cpy = MIN(old_size, adj_new_size);
+    if (GET_ORPHEAN(GET_HDR(new_ptr))) {
+        bytes_to_cpy -= ORPHEAN_BLK_MISC_SIZE;
     } else {
-        ncpy -= BLK_MISC_SIZE;
+        bytes_to_cpy -= BLK_MISC_SIZE;
     }
-    memcpy(new_ptr, old_ptr, ncpy);
+    memcpy(new_ptr, old_ptr, bytes_to_cpy);
     free_block(old_ptr);
     return (new_ptr);
 }
@@ -192,7 +190,6 @@ realloc_orphean(void *ptr, size_t adj_size) {
             return (new_malloc_cpy_old_data(ptr, blk_size, adj_size));
         }
     }
-
     if (adj_size > blk_size) {
         return (new_malloc_cpy_old_data(ptr, blk_size, adj_size));
     }
@@ -246,9 +243,9 @@ void *
 realloc(void *ptr, size_t size) {
     void *new_ptr = NULL;
 
-    // pthread_mutex_lock(&g_lock);
+    pthread_mutex_lock(&g_lock);
     new_ptr = realloc_block(ptr, size);
-    // pthread_mutex_unlock(&g_lock);
+    pthread_mutex_unlock(&g_lock);
 
     return (new_ptr);
 }
@@ -261,13 +258,13 @@ calloc(size_t nmemb, size_t size) {
     void  *ptr        = NULL;
 
     total_size = nmemb * size;
-    // pthread_mutex_lock(&g_lock);
+    pthread_mutex_lock(&g_lock);
     ptr = malloc_block(total_size);
     if (ptr == NULL) {
         return (NULL);
     }
     bzero(ptr, malloc_usable_size(ptr));
-    // pthread_mutex_unlock(&g_lock);
+    pthread_mutex_unlock(&g_lock);
     return (ptr);
 }
 

@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 16:48:33 by plouvel           #+#    #+#             */
-/*   Updated: 2024/05/31 15:16:14 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/01 02:44:38 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ High addr   +--------------+
 #define GET_ORPHEAN(hdr_or_ftr) (GET_WORD(hdr_or_ftr) & ORPHEAN)
 #define GET_ORPHEAN_BASE(hdr) ((t_byte *)(hdr) - (4 * DWORD_SIZE))
 #define GET_ORPHEAN_SIZE(hdr) (*(size_t *)(GET_ORPHEAN_BASE(hdr) + (1 * WORD_SIZE)))
-#define GET_ORPHEAN_ELEM(hdr) ((t_list *)GET_ORPHEAN_BASE(hdr) + (1 * WORD_SIZE) + (1 * DWORD_SIZE))
+#define GET_ORPHEAN_ELEM(hdr) ((t_list *)(GET_ORPHEAN_BASE(hdr) + (1 * WORD_SIZE) + (1 * DWORD_SIZE)))
 
 #define PACK(size, is_allocated) ((size) | (is_allocated))
 
