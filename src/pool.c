@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/04 11:22:38 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 13:33:25 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,6 +237,9 @@ print_pool_normal(const t_pool *pool, int opts) {
  */
 void
 print_pool(const t_pool *pool, int opts) {
+    if (pool->init == false) {
+        return;
+    }
     if (pool->type == ORPHEAN_POOL) {
         print_pool_orphean(pool, opts);
     } else {
