@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 21:53:47 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 17:25:00 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 11:22:38 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,12 +73,27 @@ find_blk_in_pools(t_pool *pools, size_t n, void *blk) {
     return (NULL);
 }
 
+/**
+ * @brief Find the appropriate pool for an allocation of size n.
+ *
+ * @param pools Array of pools.
+ * @param n Number of pools.
+ * @param size Size of the allocation.
+ * @return t_pool* The appropriate pool for the allocation.
+ *
+ */
 t_pool *
 find_appropriate_pool_for_alloc(t_pool *pools, size_t n, size_t size) {
     size_t i = 0;
 
     while (i < n) {
         if (size >= pools[i].min_alloc_size && size <= pools[i].max_alloc_size) {
+            if (pools[i].init == false) {
+                if (init_pool(&pools[i]) == -1) {
+                    return (NULL);
+                }
+                pools[i].init = true;
+            }
             return (&pools[i]);
         }
         i++;
@@ -158,11 +173,8 @@ print_pool_orphean(const t_pool *pool, int opts) {
     void   *blk  = NULL;
 
     fprintf(stderr, "## Orphean Pool [%lu;%lu] ##\n\n", pool->min_alloc_size, pool->max_alloc_size);
+    fprintf(stderr, "\tNo heap allocated for this pool.\n\n");
     elem = pool->head;
-    if (elem == NULL) {
-        fprintf(stderr, "\tNo blocks.\n\n");
-        return;
-    }
     while (elem != NULL) {
         blk = (t_byte *)(elem) + sizeof(t_list) + WORD_SIZE;
         if (opts & PRINT_ALLOC) {
@@ -187,10 +199,7 @@ print_pool_normal(const t_pool *pool, int opts) {
     fprintf(stderr, "\tHeap Reserved Address Range : [%p ; %p]\n", pool->heap.base, pool->heap.max_addr);
     fprintf(stderr, "\tUsed Address Range          : [%p ; %p]\n", pool->heap.base, pool->heap.brk);
     fprintf(stderr, "\tHeap Break                  : %p\n\n", pool->heap.brk);
-    if (GET_SIZE(GET_HDR(blk)) == 0) {
-        fprintf(stderr, "\tNo blocks.\n\n");
-        return;
-    }
+
     while (GET_SIZE(GET_HDR(blk)) != 0) {
         alloc = GET_ALLOC(GET_HDR(blk));
 

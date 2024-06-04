@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 17:47:50 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 11:19:38 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ static t_pool g_pools[N_POOLS] = {{
                                       .max_alloc_size = 0,
                                       .type           = NORMAL_POOL,
                                       .head           = NULL,
+                                      .init           = false,
                                       .heap           = {0},
                                   },
                                   {
@@ -39,6 +40,7 @@ static t_pool g_pools[N_POOLS] = {{
                                       .max_alloc_size = 0,
                                       .type           = NORMAL_POOL,
                                       .head           = NULL,
+                                      .init           = false,
                                       .heap           = {0},
                                   },
                                   {
@@ -46,6 +48,7 @@ static t_pool g_pools[N_POOLS] = {{
                                       .max_alloc_size = 0,
                                       .type           = ORPHEAN_POOL,
                                       .head           = NULL,
+                                      .init           = false,
                                       .heap           = {0},
                                   }};
 
@@ -76,19 +79,11 @@ configure_pools_alloc_sizes() {
 static int
 init_malloc() {
     static bool is_init = false;
-    size_t      i       = 0;
 
     if (is_init) {
         return (0);
     }
     configure_pools_alloc_sizes();
-    while (i < N_POOLS) {
-        if (init_pool(&g_pools[i]) == -1) {
-            return (-1);
-        }
-        i++;
-    }
-    is_init = true;
     return (0);
 }
 
@@ -107,6 +102,9 @@ malloc_block(size_t size) {
     }
     adj_size = ADJ_ALLOC_SIZE(size);
     blk_pool = find_appropriate_pool_for_alloc(g_pools, N_POOLS, adj_size);
+    if (blk_pool == NULL) {
+        return (NULL);
+    }
     if (blk_pool->type == ORPHEAN_POOL) {
         return (new_orphean_blk(&blk_pool->head, adj_size));
     }
@@ -115,7 +113,7 @@ malloc_block(size_t size) {
         ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
         blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
         if (blk == NULL) {
-            return (NULL);
+            return (new_orphean_blk(&g_pools[ORPHEAN_POOL_IDX].head, adj_size));
         }
     }
     place_blk(&blk_pool->head, blk, adj_size);

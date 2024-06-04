@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 22:41:34 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 17:19:41 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/02 00:05:48 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,10 +243,7 @@ hexdump_blk_mem(FILE *out, const char *padding, void *blk) {
         fprintf(out, "\t%s", padding);
         fprintf(out, "%p : ", usable_mem + i);
         while (j < BYTE_PER_LINE && i + j < blk_usable_size) {
-            fprintf(out, "%02x", usable_mem[i + j]);
-            if (j != BYTE_PER_LINE - 1) {
-                fputc(' ', out);
-            }
+            fprintf(out, "%02x ", usable_mem[i + j]);
             j++;
         }
         n_space = (BYTE_PER_LINE - j) * 3 + 1;

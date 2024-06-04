@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 13:46:14 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 16:56:05 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 11:16:55 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ typedef enum e_pool_type {
 
 typedef struct s_pool {
     t_heap heap;
+    bool   init;
     size_t min_alloc_size;
     size_t max_alloc_size;
     /* In a normal pool, only t*/
