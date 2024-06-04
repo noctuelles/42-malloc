@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 17:09:53 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/04 12:18:40 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 12:25:04 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <stddef.h>
 
 #define FT_HEAP_RESERVE_SIZE_STR "FT_HEAP_RESERVE_SIZE"
-#define HEAP_RESERVE_SIZE (1UL << 30)
+#define HEAP_RESERVE_SIZE (1UL << 31)
 
 #define FT_POOL_CHUNK_EXTENSION_STR "FT_POOL_CHUNK_EXTENSION"
 #define POOL_CHUNK_EXTENSION (1U << 11)
