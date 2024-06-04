@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:02:59 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/04 11:19:38 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 11:43:25 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ malloc_block(size_t size) {
         ext_size = MAX(adj_size, get_tunable(FT_POOL_CHUNK_EXTENSION_STR, POOL_CHUNK_EXTENSION));
         blk      = extend_pool(blk_pool, ext_size / WORD_SIZE);
         if (blk == NULL) {
-            return (new_orphean_blk(&g_pools[ORPHEAN_POOL_IDX].head, adj_size));
+            return (NULL);
         }
     }
     place_blk(&blk_pool->head, blk, adj_size);
