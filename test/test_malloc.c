@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 15:48:16 by plouvel           #+#    #+#             */
-/*   Updated: 2024/06/01 17:21:36 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/06/04 10:44:24 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,12 +228,17 @@ test_show_alloc_mem() {
 void
 test_show_alloc_mem_hex() {
 #define STR0 "Hello World!"
-    char* str = malloc(sizeof(STR0));
+#define STR1                                                                                                           \
+    "################################################################################################################" \
+    "###########42########42#########################################################################################" \
+    "############################################################################"
+    char* str0 = malloc(sizeof(STR0));
+    char* str1 = malloc(1 << 10);
 
-    strcpy(str, STR0);
+    strcpy(str0, STR0);
+    strcpy(str1, STR1);
 
     show_alloc_mem_hex();
-    show_free_mem();
 #undef STR0
 }
 
@@ -242,6 +247,7 @@ main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_show_alloc_mem);
     RUN_TEST(test_show_alloc_mem_hex);
+
     RUN_TEST(test_malloc_free_RANDOM);
     RUN_TEST(test_malloc_free_RANDOM_MULTITHREADING);
     return UNITY_END();
